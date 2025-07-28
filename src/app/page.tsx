@@ -40,6 +40,9 @@ import {
   FolderOpen,
   Users,
   AudioLines,
+  Smile,
+  FileImage,
+  BarChart,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedProfilePic, getAIGeneratedPostImage, getAIGeneratedPostAudio } from './actions';
@@ -56,6 +59,8 @@ import { BlueSkyPreview } from '@/components/previews/bluesky-preview';
 import { LinkedInPreview } from '@/components/previews/linkedin-preview';
 import { TikTokPreview } from '@/components/previews/tiktok-preview';
 import { cn } from '@/lib/utils';
+import { Accordion } from '@/components/ui/accordion';
+import { EditorSection } from '@/components/editor-section';
 
 export type Comment = GenerateRealisticCommentsOutput['comments'][0] & { profilePicUrl?: string; replies?: Reply[] };
 export type Reply = NonNullable<GenerateRealisticCommentsOutput['comments'][0]['replies']>[0] & { profilePicUrl?: string };
@@ -382,115 +387,142 @@ export default function Home() {
   };
 
 
-  const commonEditorFields = (
-    <>
-      <div className="space-y-2">
-        <Label htmlFor="profile-name" className="flex items-center gap-2"><User className="w-4 h-4" /> Nome do Perfil</Label>
-        <Input id="profile-name" value={profileName} onChange={(e) => setProfileName(e.target.value)} />
-      </div>
-      {['twitter', 'threads', 'bluesky', 'tiktok', 'instagram'].includes(platform) && (
-        <div className="space-y-2">
-          <Label htmlFor="username" className="flex items-center gap-2">@ Nome de usuário</Label>
-          <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} />
-        </div>
-      )}
-      <div className="flex items-center space-x-2">
-        <Switch id="verified-switch" checked={isVerified} onCheckedChange={setIsVerified} />
-        <Label htmlFor="verified-switch" className="flex items-center gap-2"><BadgeCheck className="w-4 h-4" /> Verificado</Label>
-      </div>
-       <div className="space-y-2">
-          <Label htmlFor="verified-color" className="flex items-center gap-2"><BadgeCheck className="w-4 h-4" /> Cor do Selo de Verificado</Label>
-          <div className="relative">
-            <Input id="verified-color" type="color" value={verifiedColor} onChange={(e) => setVerifiedColor(e.target.value)} className="p-1 h-10 w-full" />
-          </div>
-        </div>
-      <div className="space-y-2">
-        <Label htmlFor="profile-pic" className="flex items-center gap-2"><User className="w-4 h-4" /> URL da Foto de Perfil</Label>
-        <Input id="profile-pic" value={profilePic} onChange={(e) => setProfilePic(e.target.value)} placeholder="Cole uma URL ou gere com IA"/>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="profile-pic-prompt" className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> Gerar Foto de Perfil com IA</Label>
-        <div className="flex items-center gap-2">
-          <Input id="profile-pic-prompt" value={profilePicPrompt} onChange={(e) => setProfilePicPrompt(e.target.value)} placeholder="Ex: homem sorrindo"/>
-          <Button variant="outline" size="icon" onClick={handleGenerateProfilePic} disabled={isGenerating.profilePic} aria-label="Gerar foto com IA">
-            {isGenerating.profilePic ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-          </Button>
-        </div>
-      </div>
-       <div className="space-y-2">
-        <Label htmlFor="post-topic" className="flex items-center gap-2"><FileText className="w-4 h-4" /> Tópico para o Post (IA)</Label>
-        <Input id="post-topic" value={postTopic} onChange={(e) => setPostTopic(e.target.value)} placeholder="Sobre o que deve ser o post?"/>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="post-content" className="flex items-center gap-2"><MessageCircle className="w-4 h-4" /> Conteúdo do Post</Label>
-        <div className="flex items-start gap-2">
-            <Textarea id="post-content" value={postContent} onChange={(e) => setPostContent(e.target.value)} rows={5} className="flex-1"/>
-             <Button variant="outline" size="icon" onClick={handleGeneratePostContent} disabled={isGenerating.postContent} aria-label="Gerar conteúdo do post" className="h-auto">
-                {isGenerating.postContent ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-            </Button>
-        </div>
-      </div>
-       <div className="space-y-2">
-        <Label className="flex items-center gap-2"><AudioLines className="w-4 h-4" /> Áudio do Post (TTS)</Label>
-        <div className="flex items-center gap-2">
-          <Button onClick={handleGeneratePostAudio} disabled={isGenerating.postAudio} className="w-full" variant="outline">
-            {isGenerating.postAudio ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-            Gerar Áudio com IA
-          </Button>
-           {postAudio && (
-            <Button variant="ghost" size="icon" onClick={() => setPostAudio('')} aria-label="Remover áudio">
-                <X className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="post-image" className="flex items-center gap-2"><ImageIcon className="w-4 h-4" /> URL da Imagem do Post</Label>
-        <div className="flex items-center gap-2">
-          <Input id="post-image" value={postImage} onChange={(e) => setPostImage(e.target.value)} placeholder="Cole uma URL de imagem aqui"/>
-          <Button variant="ghost" size="icon" onClick={() => setPostImage('')} aria-label="Remover imagem" className="h-9 w-9">
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-       <div className="space-y-2">
-        <Label htmlFor="post-image-prompt" className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> Gerar Imagem do Post com IA</Label>
-        <div className="flex items-center gap-2">
-          <Input id="post-image-prompt" value={postImagePrompt} onChange={(e) => setPostImagePrompt(e.target.value)} placeholder="Ex: um gato em um telhado"/>
-          <Button variant="outline" size="icon" onClick={handleGeneratePostImage} disabled={isGenerating.postImage} aria-label="Gerar imagem do post com IA">
-            {isGenerating.postImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-          </Button>
-        </div>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="timestamp" className="flex items-center gap-2"><Clock className="w-4 h-4" /> Data e Hora</Label>
-        <Input id="timestamp" value={timestamp} onChange={(e) => setTimestamp(e.target.value)} />
-      </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="likes" className="flex items-center gap-2"><Heart className="w-4 h-4" /> Curtidas</Label>
-          <Input id="likes" type="number" value={likes} onChange={(e) => setLikes(Number(e.target.value))} />
-        </div>
-        {(platform === 'facebook' || platform === 'tiktok') && (
+  const editorContent = (
+    <Accordion type="multiple" defaultValue={['profile', 'content']} className="w-full">
+      <EditorSection
+        title="Perfil"
+        description="Informações do usuário e aparência."
+        icon={<Smile className="w-4 h-4" />}
+        id="profile"
+      >
+        <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="shares" className="flex items-center gap-2"><Share2 className="w-4 h-4" /> Compartilhamentos</Label>
-            <Input id="shares" type="number" value={shares} onChange={(e) => setShares(Number(e.target.value))} />
+            <Label htmlFor="profile-name" className="flex items-center gap-2"><User className="w-4 h-4" /> Nome do Perfil</Label>
+            <Input id="profile-name" value={profileName} onChange={(e) => setProfileName(e.target.value)} />
           </div>
-        )}
-        {(platform === 'twitter' || platform === 'threads' || platform === 'bluesky') && (
+          {['twitter', 'threads', 'bluesky', 'tiktok', 'instagram'].includes(platform) && (
             <div className="space-y-2">
-              <Label htmlFor="reposts" className="flex items-center gap-2"><Repeat className="w-4 h-4" /> Reposts</Label>
-              <Input id="reposts" type="number" value={reposts} onChange={(e) => setReposts(Number(e.target.value))} />
+              <Label htmlFor="username" className="flex items-center gap-2">@ Nome de usuário</Label>
+              <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} />
             </div>
-        )}
-        {platform === 'linkedin' && (
-          <div className="space-y-2">
-            <Label htmlFor="recommendations" className="flex items-center gap-2"><Linkedin className="w-4 h-4" /> Recomendações</Label>
-            <Input id="recommendations" type="number" value={recommendations} onChange={(e) => setRecommendations(Number(e.target.value))} />
+          )}
+           <div className="flex items-center space-x-2 pt-2">
+                <Switch id="verified-switch" checked={isVerified} onCheckedChange={setIsVerified} />
+                <Label htmlFor="verified-switch" className="flex items-center gap-2"><BadgeCheck className="w-4 h-4" /> Verificado</Label>
+            </div>
+            {isVerified && (
+                <div className="space-y-2">
+                <Label htmlFor="verified-color" className="flex items-center gap-2">Cor do Selo</Label>
+                <Input id="verified-color" type="color" value={verifiedColor} onChange={(e) => setVerifiedColor(e.target.value)} className="p-1 h-10 w-full" />
+                </div>
+            )}
+           <div className="space-y-2">
+            <Label htmlFor="profile-pic" className="flex items-center gap-2"><ImageIcon className="w-4 h-4" /> URL da Foto de Perfil</Label>
+            <Input id="profile-pic" value={profilePic} onChange={(e) => setProfilePic(e.target.value)} placeholder="Cole uma URL ou gere com IA"/>
           </div>
-        )}
-      </div>
-    </>
+          <div className="space-y-2">
+            <Label htmlFor="profile-pic-prompt" className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> Gerar Foto com IA</Label>
+            <div className="flex items-center gap-2">
+              <Input id="profile-pic-prompt" value={profilePicPrompt} onChange={(e) => setProfilePicPrompt(e.target.value)} placeholder="Ex: homem sorrindo"/>
+              <Button variant="outline" size="icon" onClick={handleGenerateProfilePic} disabled={isGenerating.profilePic} aria-label="Gerar foto com IA">
+                {isGenerating.profilePic ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </EditorSection>
+      <EditorSection
+        title="Conteúdo do Post"
+        description="Texto, mídia e áudio da publicação."
+        icon={<FileText className="w-4 h-4" />}
+        id="content"
+      >
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="post-topic" className="flex items-center gap-2">Tópico para o Post (IA)</Label>
+            <Input id="post-topic" value={postTopic} onChange={(e) => setPostTopic(e.target.value)} placeholder="Sobre o que deve ser o post?"/>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="post-content" className="flex items-center gap-2">Conteúdo do Post</Label>
+            <div className="flex items-start gap-2">
+                <Textarea id="post-content" value={postContent} onChange={(e) => setPostContent(e.target.value)} rows={5} className="flex-1"/>
+                <Button variant="outline" size="icon" onClick={handleGeneratePostContent} disabled={isGenerating.postContent} aria-label="Gerar conteúdo do post" className="h-auto">
+                    {isGenerating.postContent ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                </Button>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2"><AudioLines className="w-4 h-4" /> Áudio do Post (TTS)</Label>
+            <div className="flex items-center gap-2">
+              <Button onClick={handleGeneratePostAudio} disabled={isGenerating.postAudio} className="w-full" variant="outline">
+                {isGenerating.postAudio ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                Gerar Áudio com IA
+              </Button>
+              {postAudio && (
+                <Button variant="ghost" size="icon" onClick={() => setPostAudio('')} aria-label="Remover áudio">
+                    <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="post-image" className="flex items-center gap-2"><FileImage className="w-4 h-4" /> URL da Imagem do Post</Label>
+            <div className="flex items-center gap-2">
+              <Input id="post-image" value={postImage} onChange={(e) => setPostImage(e.target.value)} placeholder="Cole uma URL de imagem aqui"/>
+              <Button variant="ghost" size="icon" onClick={() => setPostImage('')} aria-label="Remover imagem" className="h-9 w-9">
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="post-image-prompt" className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> Gerar Imagem com IA</Label>
+            <div className="flex items-center gap-2">
+              <Input id="post-image-prompt" value={postImagePrompt} onChange={(e) => setPostImagePrompt(e.target.value)} placeholder="Ex: um gato em um telhado"/>
+              <Button variant="outline" size="icon" onClick={handleGeneratePostImage} disabled={isGenerating.postImage} aria-label="Gerar imagem do post com IA">
+                {isGenerating.postImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </EditorSection>
+      <EditorSection
+        title="Engajamento e Detalhes"
+        description="Métricas, data e outras informações."
+        icon={<BarChart className="w-4 h-4" />}
+        id="engagement"
+      >
+        <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="timestamp" className="flex items-center gap-2"><Clock className="w-4 h-4" /> Data e Hora</Label>
+              <Input id="timestamp" value={timestamp} onChange={(e) => setTimestamp(e.target.value)} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="likes" className="flex items-center gap-2"><Heart className="w-4 h-4" /> Curtidas</Label>
+                <Input id="likes" type="number" value={likes} onChange={(e) => setLikes(Number(e.target.value))} />
+              </div>
+              {(platform === 'facebook' || platform === 'tiktok') && (
+                <div className="space-y-2">
+                  <Label htmlFor="shares" className="flex items-center gap-2"><Share2 className="w-4 h-4" /> Compartilhamentos</Label>
+                  <Input id="shares" type="number" value={shares} onChange={(e) => setShares(Number(e.target.value))} />
+                </div>
+              )}
+              {(platform === 'twitter' || platform === 'threads' || platform === 'bluesky') && (
+                  <div className="space-y-2">
+                    <Label htmlFor="reposts" className="flex items-center gap-2"><Repeat className="w-4 h-4" /> Reposts</Label>
+                    <Input id="reposts" type="number" value={reposts} onChange={(e) => setReposts(Number(e.target.value))} />
+                  </div>
+              )}
+              {platform === 'linkedin' && (
+                <div className="space-y-2">
+                  <Label htmlFor="recommendations" className="flex items-center gap-2"><Linkedin className="w-4 h-4" /> Recomendações</Label>
+                  <Input id="recommendations" type="number" value={recommendations} onChange={(e) => setRecommendations(Number(e.target.value))} />
+                </div>
+              )}
+            </div>
+        </div>
+      </EditorSection>
+    </Accordion>
   );
 
   const previewProps = {
@@ -587,13 +619,13 @@ export default function Home() {
                     <TabsTrigger value="tiktok">TikTok</TabsTrigger>
                   </TabsList>
                   
-                  <TabsContent value="facebook" className="mt-6 space-y-6">{commonEditorFields}</TabsContent>
-                  <TabsContent value="instagram" className="mt-6 space-y-6">{commonEditorFields}</TabsContent>
-                  <TabsContent value="twitter" className="mt-6 space-y-6">{commonEditorFields}</TabsContent>
-                  <TabsContent value="threads" className="mt-6 space-y-6">{commonEditorFields}</TabsContent>
-                  <TabsContent value="bluesky" className="mt-6 space-y-6">{commonEditorFields}</TabsContent>
-                  <TabsContent value="linkedin" className="mt-6 space-y-6">{commonEditorFields}</TabsContent>
-                  <TabsContent value="tiktok" className="mt-6 space-y-6">{commonEditorFields}</TabsContent>
+                  <TabsContent value="facebook" className="mt-6">{editorContent}</TabsContent>
+                  <TabsContent value="instagram" className="mt-6">{editorContent}</TabsContent>
+                  <TabsContent value="twitter" className="mt-6">{editorContent}</TabsContent>
+                  <TabsContent value="threads" className="mt-6">{editorContent}</TabsContent>
+                  <TabsContent value="bluesky" className="mt-6">{editorContent}</TabsContent>
+                  <TabsContent value="linkedin" className="mt-6">{editorContent}</TabsContent>
+                  <TabsContent value="tiktok" className="mt-6">{editorContent}</TabsContent>
                 </Tabs>
                 <Separator/>
                 <div className="space-y-2">
@@ -657,3 +689,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
