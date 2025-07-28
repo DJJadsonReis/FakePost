@@ -3,9 +3,9 @@
 import { GenerateRealisticCommentsOutput, generateRealisticComments } from '@/ai/flows/generate-comments';
 import { generatePostAudio } from '@/ai/flows/generate-post-audio';
 import { generatePostContent } from '@/ai/flows/generate-post-content';
-import { generatePostImage } from '@/ai/flows/generate-post-image';
+import { generatePostImage } from '@/ai/flows/generate-image';
 import { generateProfilePic } from '@/ai/flows/generate-profile-pic';
-import { generatePostVideo } from '@/ai/flows/generate-post-video';
+import { generatePostVideo } from '@/ai/flows/generate-video';
 import { generateRandomPost } from '@/ai/flows/generate-random-post';
 
 export async function getAIGeneratedComments(

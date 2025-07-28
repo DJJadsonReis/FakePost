@@ -62,13 +62,6 @@ const generatePostVideoFlow = ai.defineFlow(
         throw new Error('Failed to find the generated video in the operation result.');
     }
     
-    // The video URL from Veo is temporary and needs to be fetched and converted to a data URI
-    // For simplicity in this context, we assume the user's environment can handle this.
-    // In a real app, you would fetch the URL and convert to Base64.
-    // Let's assume for now we can get a direct data URI, or handle the URL on the client.
-    // The `media.url` from Veo is a signed URL, not a data URI.
-    // We'll proceed as if it's usable, but a real implementation would need a fetch and Base64 conversion step.
-    // This is a placeholder for the fetch logic.
     const fetch = (await import('node-fetch')).default;
     const videoDownloadResponse = await fetch(
         `${videoPart.media.url}&key=${process.env.GEMINI_API_KEY}`
@@ -79,7 +72,7 @@ const generatePostVideoFlow = ai.defineFlow(
     }
     const videoBuffer = await videoDownloadResponse.arrayBuffer();
     const videoBase64 = Buffer.from(videoBuffer).toString('base64');
-    const videoUrl = `data:${videoPart.media.contentType};base64,${videoBase64}`;
+    const videoUrl = `data:${videoPart.media.contentType || 'video/mp4'};base64,${videoBase64}`;
 
     return { videoUrl };
   }
