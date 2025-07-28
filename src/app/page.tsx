@@ -76,7 +76,7 @@ export default function Home() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLiked, setIsLiked] = useState(false);
 
-
+  // Load theme from localStorage or system preference
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
     if (savedTheme) {
@@ -84,9 +84,9 @@ export default function Home() {
     } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       setTheme('dark');
     }
-    handleLoadTemplate(true); // silently load template on startup
   }, []);
 
+  // Apply theme to the document
   useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
@@ -96,6 +96,12 @@ export default function Home() {
       localStorage.setItem('theme', 'light');
     }
   }, [theme]);
+  
+  // Load saved template from local storage on initial mount
+  useEffect(() => {
+    handleLoadTemplate(true);
+  }, []);
+
 
   const toggleTheme = () => {
     setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
@@ -119,9 +125,6 @@ export default function Home() {
             if (result.postContent) updateEditorState({ postContent: result.postContent });
             break;
           case 'profilePic':
-            // Note: getAIGeneratedProfilePic is not a standard action, so we call it directly for simplicity
-            // or create a dedicated action if it needs to be a server action. For this case, let's assume
-            // we'll need an action for it. Let's create a placeholder for the action call.
             const { getAIGeneratedProfilePic } = await import('./actions');
             result = await getAIGeneratedProfilePic(editorState.profilePicPrompt);
             if (result.imageUrl) updateEditorState({ profilePic: result.imageUrl });
@@ -237,7 +240,7 @@ export default function Home() {
     }
   };
 
-  const handleLoadTemplate = useCallback((silent = false) => {
+  const handleLoadTemplate = (silent = false) => {
     const savedTemplate = localStorage.getItem('fakePostTemplate');
     if (savedTemplate) {
       try {
@@ -265,7 +268,7 @@ export default function Home() {
         description: 'Não há nenhum modelo salvo no seu navegador.',
       });
     }
-  }, [toast, updateEditorState]);
+  };
 
 
   const previewProps = {
@@ -400,3 +403,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
