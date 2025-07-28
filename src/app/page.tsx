@@ -449,8 +449,8 @@ export default function Home() {
   );
 
   const renderBlueSkyPreview = () => (
-    <Card className="w-full max-w-xl shadow-md transition-all duration-300 hover:shadow-xl font-sans bg-card text-card-foreground">
-      <CardContent className="p-4 border border-border rounded-lg">
+    <Card className="w-full max-w-xl shadow-md transition-all duration-300 hover:shadow-xl font-sans bg-card text-card-foreground rounded-lg">
+      <CardContent className="p-4">
         <div className="flex items-start gap-3">
           <Avatar className="h-12 w-12">
             <AvatarImage src={profilePic} alt={profileName} data-ai-hint="profile avatar" />
@@ -458,30 +458,30 @@ export default function Home() {
           </Avatar>
           <div className="flex-1">
              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1 flex-wrap">
-                  <p className="font-bold">{profileName}</p>
-                   <VerifiedBadge className="h-5 w-5" />
-                  <p className="text-muted-foreground">{username}</p>
-                  <span className="text-muted-foreground">·</span>
-                  <p className="text-muted-foreground">{timestamp}</p>
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-1">
+                    <p className="font-bold">{profileName}</p>
+                    <VerifiedBadge className="h-5 w-5" />
+                  </div>
+                  <p className="text-muted-foreground">{username} · {timestamp}</p>
                 </div>
                 <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
             </div>
-            <p className="whitespace-pre-wrap mt-1">{postContent}</p>
+            <p className="whitespace-pre-wrap mt-2">{postContent}</p>
             {postImage && (
               <div className="mt-3 rounded-lg border border-border overflow-hidden">
                  <Image src={postImage} alt="Post image" width={500} height={300} className="w-full h-auto object-cover" data-ai-hint="social media post"/>
               </div>
             )}
-            <div className="flex justify-between mt-3 text-muted-foreground max-w-xs">
-              <Button variant="ghost" className="flex items-center gap-1 hover:text-blue-500 px-2">
-                <MessageCircle className="h-4 w-4" /> {comments.length}
+            <div className="flex justify-start gap-8 mt-3 text-muted-foreground">
+              <Button variant="ghost" className="flex items-center gap-2 hover:text-blue-500 px-0">
+                <MessageCircle className="h-5 w-5" /> {comments.length}
               </Button>
-              <Button variant="ghost" className="flex items-center gap-1 hover:text-green-500 px-2">
-                <Repeat className="h-4 w-4" /> {reposts}
+              <Button variant="ghost" className="flex items-center gap-2 hover:text-green-500 px-0">
+                <Repeat className="h-5 w-5" /> {reposts}
               </Button>
-              <Button variant="ghost" className="flex items-center gap-1 hover:text-red-500 px-2" onClick={handleLike}>
-                <Heart className={cn("h-4 w-4", isLiked && 'fill-red-500 text-red-500')} /> {likes}
+              <Button variant="ghost" className="flex items-center gap-2 hover:text-red-500 px-0" onClick={handleLike}>
+                <Heart className={cn("h-5 w-5", isLiked && 'fill-red-500 text-red-500')} /> {likes}
               </Button>
             </div>
           </div>
@@ -489,6 +489,7 @@ export default function Home() {
       </CardContent>
     </Card>
   );
+
 
   const renderPreview = () => {
     switch (platform) {
