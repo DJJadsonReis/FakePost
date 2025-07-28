@@ -76,6 +76,7 @@ export default function Home() {
   const [verifiedColor, setVerifiedColor] = useState('#1DA1F2');
   const [platform, setPlatform] = useState<SocialPlatform>('facebook');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
@@ -106,7 +107,6 @@ export default function Home() {
   const [shares, setShares] = useState(23);
   const [recommendations, setRecommendations] = useState(78);
   const [isLiked, setIsLiked] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
 
   const handleGenerateComments = () => {
     startTransition(async () => {
@@ -279,7 +279,7 @@ export default function Home() {
   );
 
   const renderFacebookPreview = () => (
-    <Card className="w-full max-w-xl shadow-md transition-all duration-300 hover:shadow-xl font-sans">
+    <Card className="w-full max-w-xl font-sans transition-all duration-300 bg-card text-card-foreground">
       <CardHeader className="flex flex-row items-center gap-3 space-y-0 p-4">
         <Avatar className="h-10 w-10">
           <AvatarImage src={profilePic} alt={profileName} data-ai-hint="profile avatar" />
@@ -356,7 +356,7 @@ export default function Home() {
   );
   
   const renderInstagramPreview = () => (
-     <Card className="w-full max-w-md rounded-none sm:rounded-lg bg-card text-card-foreground">
+     <Card className="w-full max-w-md rounded-none sm:rounded-lg bg-card text-card-foreground border-0 sm:border">
         <CardHeader className="flex flex-row items-center justify-between p-3">
             <div className="flex items-center gap-3">
                 <Avatar className="h-8 w-8 border">
@@ -413,7 +413,7 @@ export default function Home() {
   );
 
   const renderTwitterPreview = () => (
-    <Card className="w-full max-w-xl font-sans bg-card text-card-foreground rounded-none sm:rounded-lg">
+    <Card className="w-full max-w-xl font-sans bg-card text-card-foreground rounded-none sm:rounded-lg border-0 sm:border">
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
           <Avatar className="h-12 w-12">
@@ -438,18 +438,27 @@ export default function Home() {
               </div>
             )}
              <p className="text-muted-foreground text-sm mt-3">{timestamp}</p>
-            <Separator className="my-2" />
+            <Separator className="my-3" />
+            <div className="flex items-center gap-6 text-muted-foreground text-sm">
+                <div className="flex items-center gap-2">
+                    <span className="font-bold text-card-foreground">{reposts}</span> Reposts
+                </div>
+                <div className="flex items-center gap-2">
+                    <span className="font-bold text-card-foreground">{likes}</span> Curtidas
+                </div>
+            </div>
+            <Separator className="my-3" />
             <div className="flex justify-around text-muted-foreground">
-              <Button variant="ghost" className="flex items-center gap-2 hover:text-blue-500">
+              <Button variant="ghost" className="flex-1 flex items-center gap-2 hover:text-blue-500">
                 <MessageCircle className="h-5 w-5" /> {comments.length > 0 && <span>{comments.length}</span>}
               </Button>
-              <Button variant="ghost" className="flex items-center gap-2 hover:text-green-500">
-                <Repeat className="h-5 w-5" /> {reposts > 0 && <span>{reposts}</span>}
+              <Button variant="ghost" className="flex-1 flex items-center gap-2 hover:text-green-500">
+                <Repeat className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" className="flex items-center gap-2 hover:text-red-500" onClick={handleLike}>
-                <Heart className={cn("h-5 w-5", isLiked && 'fill-red-500 text-red-500')} /> {likes > 0 && <span>{likes}</span>}
+              <Button variant="ghost" className="flex-1 flex items-center gap-2 hover:text-red-500" onClick={handleLike}>
+                <Heart className={cn("h-5 w-5", isLiked && 'fill-red-500 text-red-500')} />
               </Button>
-              <Button variant="ghost" className="flex items-center gap-2 hover:text-blue-500">
+              <Button variant="ghost" className="flex-1 flex items-center gap-2 hover:text-blue-500">
                 <Share2 className="h-5 w-5" />
               </Button>
             </div>
@@ -460,7 +469,7 @@ export default function Home() {
   );
 
   const renderThreadsPreview = () => (
-    <Card className="w-full max-w-xl font-sans bg-card text-card-foreground rounded-none sm:rounded-lg">
+    <Card className="w-full max-w-xl font-sans bg-card text-card-foreground rounded-none sm:rounded-lg border-0 sm:border">
         <CardContent className="p-4">
             <div className="flex items-start gap-3">
                 <div className="flex flex-col items-center">
@@ -468,7 +477,7 @@ export default function Home() {
                         <AvatarImage src={profilePic} alt={profileName} data-ai-hint="profile avatar" />
                         <AvatarFallback>{profileName.substring(0, 2)}</AvatarFallback>
                     </Avatar>
-                    {comments.length > 0 && <div className="w-0.5 h-full bg-border my-2"></div>}
+                    {comments.length > 0 && <div className="w-0.5 grow bg-border my-2"></div>}
                 </div>
                 <div className="flex-1">
                     <div className="flex justify-between items-start">
@@ -505,7 +514,7 @@ export default function Home() {
   );
 
   const renderBlueSkyPreview = () => (
-    <Card className="w-full max-w-xl bg-card text-card-foreground font-sans p-4">
+    <Card className="w-full max-w-xl bg-card text-card-foreground font-sans p-4 border-0 sm:border">
       <div className="flex items-start gap-3">
         <Avatar className="h-12 w-12">
           <AvatarImage src={profilePic} alt={profileName} data-ai-hint="profile avatar" />
@@ -532,13 +541,13 @@ export default function Home() {
             </div>
           )}
           <div className="flex justify-start gap-8 mt-4 text-muted-foreground">
-             <Button variant="ghost" size="sm" className="flex items-center gap-2">
+             <Button variant="ghost" size="sm" className="flex items-center gap-2 -ml-3">
               <MessageCircle className="h-5 w-5" /> {comments.length}
             </Button>
-            <Button variant="ghost" size="sm" className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" className="flex items-center gap-2 -ml-3">
               <Repeat className="h-5 w-5" /> {reposts}
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleLike} className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={handleLike} className="flex items-center gap-2 -ml-3">
               <Heart className={cn("h-5 w-5", isLiked && 'fill-red-500 text-red-500')} /> {likes}
             </Button>
           </div>
@@ -548,7 +557,7 @@ export default function Home() {
   );
 
   const renderLinkedInPreview = () => (
-    <Card className="w-full max-w-xl shadow-lg font-sans bg-card text-card-foreground">
+    <Card className="w-full max-w-xl font-sans bg-card text-card-foreground border-0 sm:border">
         <CardHeader className="flex flex-row items-start gap-3 p-4">
             <Avatar className="h-14 w-14">
                 <AvatarImage src={profilePic} alt={profileName} data-ai-hint="profile avatar" />
