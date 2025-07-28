@@ -16,7 +16,7 @@ import {
   Save,
   FolderOpen,
 } from 'lucide-react';
-import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedPostMedia, getAIGeneratedPostAudio, getAIGeneratedRandomPost } from './actions';
+import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedPostMedia, getAIGeneratedPostAudio, getAIGeneratedRandomPost, getAIGeneratedProfilePic } from './actions';
 import { useToast } from '@/hooks/use-toast';
 
 import type { Comment as CommentType, Reply } from '@/ai/flows/generate-comments';
@@ -76,7 +76,7 @@ export default function Home() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLiked, setIsLiked] = useState(false);
 
-  // Load theme from localStorage or system preference
+  // Load theme from localStorage
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
     if (savedTheme) {
@@ -99,15 +99,23 @@ export default function Home() {
   
   // Load saved template from local storage on initial mount
   useEffect(() => {
-    handleLoadTemplate(true);
-  }, []);
+    const savedTemplate = localStorage.getItem('fakePostTemplate');
+    if (savedTemplate) {
+      try {
+        const template = JSON.parse(savedTemplate);
+        updateEditorState(template);
+      } catch (error) {
+         console.error("Could not load template from local storage", error);
+      }
+    }
+  }, [updateEditorState]);
 
 
   const toggleTheme = () => {
     setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
   };
 
-  const handleGenerate = useCallback(async (type: GenerationType) => {
+  const handleGenerate = useCallback((type: GenerationType) => {
     setIsGenerating(prev => [...prev, type]);
      if (type === 'random') {
         toast({
@@ -118,19 +126,21 @@ export default function Home() {
 
     startTransition(async () => {
       let result: any;
+      // Reading state directly inside the transition ensures we get the latest value
+      // without needing it to be a dependency of useCallback.
+      const currentState = editorState; 
       try {
         switch (type) {
           case 'postContent':
-            result = await getAIGeneratedPostContent(editorState.postTopic);
+            result = await getAIGeneratedPostContent(currentState.postTopic);
             if (result.postContent) updateEditorState({ postContent: result.postContent });
             break;
           case 'profilePic':
-            const { getAIGeneratedProfilePic } = await import('./actions');
-            result = await getAIGeneratedProfilePic(editorState.profilePicPrompt);
+            result = await getAIGeneratedProfilePic(currentState.profilePicPrompt);
             if (result.imageUrl) updateEditorState({ profilePic: result.imageUrl });
             break;
           case 'postMedia':
-            result = await getAIGeneratedPostMedia(editorState.postMediaPrompt, platform);
+            result = await getAIGeneratedPostMedia(currentState.postMediaPrompt, platform);
             if (result.imageUrl) {
                 updateEditorState({ postImage: result.imageUrl, postVideo: '' });
             }
@@ -139,11 +149,11 @@ export default function Home() {
             }
             break;
           case 'postAudio':
-            result = await getAIGeneratedPostAudio(editorState.postContent);
+            result = await getAIGeneratedPostAudio(currentState.postContent);
             if (result.audioDataUri) updateEditorState({ postAudio: result.audioDataUri });
             break;
           case 'comments':
-            result = await getAIGeneratedComments(editorState.postContent, editorState.numberOfComments);
+            result = await getAIGeneratedComments(currentState.postContent, currentState.numberOfComments);
             if (result.comments) {
               setComments(result.comments);
             }
@@ -186,7 +196,7 @@ export default function Home() {
         setIsGenerating(prev => prev.filter(item => item !== type));
       }
     });
-  }, [editorState.postTopic, editorState.profilePicPrompt, editorState.postMediaPrompt, editorState.postContent, editorState.numberOfComments, platform, toast, updateEditorState]);
+  }, [platform, toast, updateEditorState, editorState]);
 
 
   const handleLike = () => {
@@ -240,35 +250,31 @@ export default function Home() {
     }
   };
 
-  const handleLoadTemplate = (silent = false) => {
+  const handleLoadTemplate = useCallback(() => {
     const savedTemplate = localStorage.getItem('fakePostTemplate');
     if (savedTemplate) {
       try {
         const template = JSON.parse(savedTemplate);
         updateEditorState(template);
-        if (!silent) {
-            toast({
-              title: 'Modelo Carregado!',
-              description: 'As configurações salvas foram aplicadas.',
-            });
-        }
+        toast({
+            title: 'Modelo Carregado!',
+            description: 'As configurações salvas foram aplicadas.',
+        });
       } catch (error) {
-         if (!silent) {
-            toast({
-              variant: 'destructive',
-              title: 'Erro ao Carregar',
-              description: 'O modelo salvo parece estar corrompido.',
-            });
-         }
+        toast({
+            variant: 'destructive',
+            title: 'Erro ao Carregar',
+            description: 'O modelo salvo parece estar corrompido.',
+        });
       }
-    } else if (!silent) {
+    } else {
       toast({
         variant: 'destructive',
         title: 'Nenhum Modelo Encontrado',
         description: 'Não há nenhum modelo salvo no seu navegador.',
       });
     }
-  };
+  }, [toast, updateEditorState]);
 
 
   const previewProps = {
@@ -341,7 +347,7 @@ export default function Home() {
                         <Save className="mr-2 h-4 w-4" />
                         Salvar Modelo
                         </Button>
-                        <Button onClick={() => handleLoadTemplate()} variant="outline" className="w-full">
+                        <Button onClick={handleLoadTemplate} variant="outline" className="w-full">
                         <FolderOpen className="mr-2 h-4 w-4" />
                         Carregar Modelo
                         </Button>
@@ -403,5 +409,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
