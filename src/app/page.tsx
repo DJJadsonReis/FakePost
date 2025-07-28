@@ -41,9 +41,10 @@ import {
   Download,
   X,
   Linkedin,
+  Sparkles,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { getAIGeneratedComments } from './actions';
+import { getAIGeneratedComments, getAIGeneratedProfilePic } from './actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
@@ -56,6 +57,7 @@ type SocialPlatform = 'facebook' | 'instagram' | 'twitter' | 'threads' | 'bluesk
 
 export default function Home() {
   const [isPending, startTransition] = useTransition();
+  const [isGeneratingProfilePic, startProfilePicTransition] = useTransition();
   const { toast } = useToast();
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -63,6 +65,7 @@ export default function Home() {
   const [profileName, setProfileName] = useState('Maria Silva');
   const [username, setUsername] = useState('@mariasilva');
   const [profilePic, setProfilePic] = useState('https://placehold.co/48x48.png');
+  const [profilePicPrompt, setProfilePicPrompt] = useState('mulher sorrindo');
   const [postContent, setPostContent] = useState(
     "Aproveitando um lindo dia no parque! É incrível como um pouco de sol pode mudar todo o seu humor. ☀️ #abençoada #amantedanatureza #boasvibrações"
   );
@@ -119,6 +122,25 @@ export default function Home() {
         toast({
           title: 'Sucesso!',
           description: 'Novos comentários foram gerados.',
+        });
+      }
+    });
+  };
+  
+  const handleGenerateProfilePic = () => {
+    startProfilePicTransition(async () => {
+      const result = await getAIGeneratedProfilePic(profilePicPrompt);
+       if (result.error) {
+        toast({
+          variant: 'destructive',
+          title: 'Erro',
+          description: result.error,
+        });
+      } else if (result.imageUrl) {
+        setProfilePic(result.imageUrl);
+        toast({
+          title: 'Sucesso!',
+          description: 'Nova foto de perfil foi gerada.',
         });
       }
     });
@@ -182,7 +204,16 @@ export default function Home() {
         </div>
       <div className="space-y-2">
         <Label htmlFor="profile-pic" className="flex items-center gap-2"><User className="w-4 h-4" /> URL da Foto de Perfil</Label>
-        <Input id="profile-pic" value={profilePic} onChange={(e) => setProfilePic(e.target.value)} />
+        <Input id="profile-pic" value={profilePic} onChange={(e) => setProfilePic(e.target.value)} placeholder="Cole uma URL ou gere com IA"/>
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="profile-pic-prompt" className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> Gerar Foto de Perfil com IA</Label>
+        <div className="flex items-center gap-2">
+          <Input id="profile-pic-prompt" value={profilePicPrompt} onChange={(e) => setProfilePicPrompt(e.target.value)} placeholder="Ex: homem sorrindo"/>
+          <Button variant="outline" size="icon" onClick={handleGenerateProfilePic} disabled={isGeneratingProfilePic} aria-label="Gerar foto com IA">
+            {isGeneratingProfilePic ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+          </Button>
+        </div>
       </div>
       <div className="space-y-2">
         <Label htmlFor="post-content" className="flex items-center gap-2"><MessageCircle className="w-4 h-4" /> Conteúdo do Post</Label>
@@ -688,5 +719,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
