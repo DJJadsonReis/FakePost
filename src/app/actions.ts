@@ -151,7 +151,7 @@ export async function getAIGeneratedPostAudio(
 }
 
 
-export async function getAIGeneratedRandomPost(isTikTok: boolean): Promise<{
+export async function getAIGeneratedRandomPost(platform: SocialPlatform): Promise<{
     post?: {
         profileName: string;
         username: string;
@@ -171,7 +171,7 @@ export async function getAIGeneratedRandomPost(isTikTok: boolean): Promise<{
         
         // 2. Start generating images/video and comments in parallel
         const profilePicPromise = getAIGeneratedProfilePic(textResult.profilePicPrompt);
-        const postMediaPromise = getAIGeneratedPostMedia(textResult.postMediaPrompt, isTikTok ? 'tiktok' : 'instagram');
+        const postMediaPromise = getAIGeneratedPostMedia(textResult.postMediaPrompt, platform);
         const commentsPromise = getAIGeneratedComments(textResult.postContent, 5);
         
         // 3. Await all promises
@@ -191,8 +191,8 @@ export async function getAIGeneratedRandomPost(isTikTok: boolean): Promise<{
             post: {
                 ...textResult,
                 profilePicUrl: profilePicResult.imageUrl,
-                postImageUrl: (postMediaResult as any).imageUrl,
-                postVideoUrl: (postMediaResult as any).videoUrl,
+                postImageUrl: postMediaResult.imageUrl,
+                postVideoUrl: postMediaResult.videoUrl,
             },
             comments: commentsResult.comments,
         };

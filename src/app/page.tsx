@@ -176,7 +176,7 @@ export default function Home() {
             }
             break;
           case 'random':
-             result = await getAIGeneratedRandomPost(platform === 'tiktok');
+             result = await getAIGeneratedRandomPost(platform);
              if (result.post && result.comments) {
                 setProfileName(result.post.profileName);
                 setUsername(result.post.username);
