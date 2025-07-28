@@ -347,6 +347,7 @@ export default function Home() {
       postImage,
       postVideo,
       postMediaPrompt,
+      postAudio,
       timestamp,
       isVerified,
       verifiedColor,
@@ -375,6 +376,7 @@ export default function Home() {
       setPostImage(template.postImage || 'https://placehold.co/600x400.png');
       setPostVideo(template.postVideo || '');
       setPostMediaPrompt(template.postMediaPrompt || 'um lindo dia no parque com sol');
+      setPostAudio(template.postAudio || '');
       setTimestamp(template.timestamp || '2h');
       setIsVerified(template.isVerified !== undefined ? template.isVerified : true);
       setVerifiedColor(template.verifiedColor || '#1DA1F2');
@@ -696,7 +698,7 @@ export default function Home() {
             </a>
           </p>
           <p className="text-xs text-muted-foreground mt-2">
-            Este é um projeto de código aberto para fins educacionais.
+            Este é um projeto de código aberto para fins educacionais e de portfólio.
           </p>
         </footer>
       </div>
