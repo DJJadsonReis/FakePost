@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Loader2,
-  Image as ImageIcon,
+  ImageIcon,
   User,
   Clock,
   MessageSquare,
@@ -50,6 +50,23 @@ interface PostEditorProps {
     updateEditorState: (updates: Partial<any>) => void;
 }
 
+const platformConfig: Record<SocialPlatform, {
+    showUsername: boolean;
+    showShares?: boolean;
+    showReposts?: boolean;
+    showRecommendations?: boolean;
+    mediaType: 'image' | 'video' | 'imageOnly';
+}> = {
+    'instagram': { showUsername: true, mediaType: 'image' },
+    'twitter': { showUsername: true, showReposts: true, mediaType: 'image' },
+    'threads': { showUsername: true, showReposts: true, mediaType: 'image' },
+    'bluesky': { showUsername: true, showReposts: true, mediaType: 'image' },
+    'tiktok': { showUsername: true, showShares: true, mediaType: 'video' },
+    'facebook': { showUsername: false, showShares: true, mediaType: 'imageOnly' },
+    'linkedin': { showUsername: false, showRecommendations: true, mediaType: 'imageOnly' },
+};
+
+
 export function PostEditor({
     platform,
     setPlatform,
@@ -70,6 +87,8 @@ export function PostEditor({
             updateEditorState({ [field]: num });
         }
     };
+    
+    const currentPlatformConfig = platformConfig[platform];
 
 
     const editorContent = (
@@ -85,7 +104,7 @@ export function PostEditor({
             <Label htmlFor="profile-name">Nome do Perfil</Label>
             <Input id="profile-name" value={editorState.profileName} onChange={(e) => handleInputChange('profileName', e.target.value)} />
           </div>
-          {['twitter', 'threads', 'bluesky', 'tiktok', 'instagram'].includes(platform) && (
+          {currentPlatformConfig.showUsername && (
             <div className="space-y-2">
               <Label htmlFor="username">@ Nome de usuário</Label>
               <Input id="username" value={editorState.username} onChange={(e) => handleInputChange('username', e.target.value)} />
@@ -150,7 +169,7 @@ export function PostEditor({
               )}
             </div>
           </div>
-          { platform !== 'tiktok' && (
+          { currentPlatformConfig.mediaType !== 'video' && (
             <div className="space-y-2">
                 <Label htmlFor="post-image">URL da Imagem do Post</Label>
                 <div className="flex items-center gap-2">
@@ -161,17 +180,19 @@ export function PostEditor({
                 </div>
             </div>
           )}
-          <div className="space-y-2">
-             <Label htmlFor="post-media-prompt">
-              Gerar {platform === 'tiktok' ? 'Vídeo' : 'Imagem'} com IA
-            </Label>
-            <div className="flex items-center gap-2">
-              <Input id="post-media-prompt" value={editorState.postMediaPrompt} onChange={(e) => handleInputChange('postMediaPrompt', e.target.value)} placeholder={platform === 'tiktok' ? "Ex: um drone voando sobre uma cidade" : "Ex: um gato em um telhado"}/>
-              <Button variant="outline" size="icon" onClick={() => handleGenerate('postMedia')} disabled={isGenerating.includes('postMedia') || isPending} aria-label={`Gerar ${platform === 'tiktok' ? 'vídeo' : 'imagem'} com IA`}>
-                {isGenerating.includes('postMedia') ? <Loader2 className="h-4 w-4 animate-spin" /> : (platform === 'tiktok' ? <Video className="h-4 w-4 text-accent" /> : <ImageIcon className="h-4 w-4 text-accent" />) }
-              </Button>
-            </div>
-          </div>
+           { currentPlatformConfig.mediaType !== 'imageOnly' && (
+              <div className="space-y-2">
+                <Label htmlFor="post-media-prompt">
+                  Gerar {currentPlatformConfig.mediaType === 'video' ? 'Vídeo' : 'Imagem'} com IA
+                </Label>
+                <div className="flex items-center gap-2">
+                  <Input id="post-media-prompt" value={editorState.postMediaPrompt} onChange={(e) => handleInputChange('postMediaPrompt', e.target.value)} placeholder={currentPlatformConfig.mediaType === 'video' ? "Ex: um drone voando sobre uma cidade" : "Ex: um gato em um telhado"}/>
+                  <Button variant="outline" size="icon" onClick={() => handleGenerate('postMedia')} disabled={isGenerating.includes('postMedia') || isPending} aria-label={`Gerar ${currentPlatformConfig.mediaType === 'video' ? 'vídeo' : 'imagem'} com IA`}>
+                    {isGenerating.includes('postMedia') ? <Loader2 className="h-4 w-4 animate-spin" /> : (currentPlatformConfig.mediaType === 'video' ? <Video className="h-4 w-4 text-accent" /> : <ImageIcon className="h-4 w-4 text-accent" />) }
+                  </Button>
+                </div>
+              </div>
+           )}
         </div>
       </EditorSection>
       <EditorSection
@@ -190,19 +211,19 @@ export function PostEditor({
                 <Label htmlFor="likes">Curtidas</Label>
                 <Input id="likes" type="number" value={editorState.likes} onChange={(e) => handleNumberInputChange('likes', e.target.value)} />
               </div>
-              {(platform === 'facebook' || platform === 'tiktok') && (
+              {currentPlatformConfig.showShares && (
                 <div className="space-y-2">
                   <Label htmlFor="shares">Compartilhamentos</Label>
                   <Input id="shares" type="number" value={editorState.shares} onChange={(e) => handleNumberInputChange('shares', e.target.value)} />
                 </div>
               )}
-              {(platform === 'twitter' || platform === 'threads' || platform === 'bluesky') && (
+              {currentPlatformConfig.showReposts && (
                   <div className="space-y-2">
                     <Label htmlFor="reposts">Reposts</Label>
                     <Input id="reposts" type="number" value={editorState.reposts} onChange={(e) => handleNumberInputChange('reposts', e.target.value)} />
                   </div>
               )}
-              {platform === 'linkedin' && (
+              {currentPlatformConfig.showRecommendations && (
                 <div className="space-y-2">
                   <Label htmlFor="recommendations">Recomendações</Label>
                   <Input id="recommendations" type="number" value={editorState.recommendations} onChange={(e) => handleNumberInputChange('recommendations', e.target.value)} />
