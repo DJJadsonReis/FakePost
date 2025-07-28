@@ -7,6 +7,7 @@ import { generatePostImage } from '@/ai/flows/generate-image';
 import { generateProfilePic } from '@/ai/flows/generate-profile-pic';
 import { generatePostVideo } from '@/ai/flows/generate-video';
 import { generateRandomPost } from '@/ai/flows/generate-random-post';
+import type { SocialPlatform } from './page';
 
 export async function getAIGeneratedComments(
   postContent: string,
@@ -70,38 +71,27 @@ export async function getAIGeneratedPostContent(
   }
 }
 
-export async function getAIGeneratedPostImage(
-  prompt: string
-): Promise<{ imageUrl?: string; error?: string }> {
-    if (!prompt) {
-        return { error: 'A descrição da imagem não pode estar vazia.' };
-    }
 
+export async function getAIGeneratedPostMedia(
+    prompt: string,
+    platform: SocialPlatform
+): Promise<{ imageUrl?: string; videoUrl?: string; error?: string }> {
+    if (!prompt) {
+        return { error: 'A descrição da mídia não pode estar vazia.' };
+    }
     try {
-        const result = await generatePostImage({ prompt });
-        return { imageUrl: result.imageUrl };
+        if (platform === 'tiktok') {
+            const result = await generatePostVideo({ prompt });
+            return { videoUrl: result.videoUrl };
+        } else {
+            const result = await generatePostImage({ prompt });
+            return { imageUrl: result.imageUrl };
+        }
     } catch (error) {
-        console.error('Error generating post image:', error);
-        return { error: 'Ocorreu um erro inesperado ao gerar a imagem. Por favor, tente novamente mais tarde.' };
+        console.error('Error generating post media:', error);
+        return { error: 'Ocorreu um erro inesperado ao gerar a mídia. Por favor, tente novamente mais tarde.' };
     }
 }
-
-export async function getAIGeneratedPostVideo(
-  prompt: string
-): Promise<{ videoUrl?: string; error?: string }> {
-    if (!prompt) {
-        return { error: 'A descrição do vídeo não pode estar vazia.' };
-    }
-
-    try {
-        const result = await generatePostVideo({ prompt });
-        return { videoUrl: result.videoUrl };
-    } catch (error) {
-        console.error('Error generating post video:', error);
-        return { error: 'Ocorreu um erro inesperado ao gerar o vídeo. Por favor, tente novamente mais tarde.' };
-    }
-}
-
 
 export async function getAIGeneratedPostAudio(
   text: string
