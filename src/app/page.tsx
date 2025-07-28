@@ -4,53 +4,19 @@ import { useState, useTransition, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import * as htmlToImage from 'html-to-image';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  MessageCircle,
-  Share2,
-  Loader2,
-  Image as ImageIcon,
-  User,
-  Clock,
   MessageSquare,
-  BadgeCheck,
-  Heart,
-  Repeat,
-  Send,
-  MoreHorizontal,
+  Loader2,
   Sun,
   Moon,
   Download,
-  X,
-  Linkedin,
-  Sparkles,
-  Music,
-  FileText,
-  Save,
-  FolderOpen,
-  Users,
-  AudioLines,
-  Smile,
-  FileImage,
-  BarChart,
-  Video,
+  Heart,
   WandSparkles,
 } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
 import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedProfilePic, getAIGeneratedPostMedia, getAIGeneratedPostAudio, getAIGeneratedRandomPost } from './actions';
 import { useToast } from '@/hooks/use-toast';
-import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import type { GenerateRealisticCommentsOutput } from '@/ai/flows/generate-comments';
 
 import { FacebookPreview } from '@/components/previews/facebook-preview';
@@ -60,13 +26,12 @@ import { ThreadsPreview } from '@/components/previews/threads-preview';
 import { BlueSkyPreview } from '@/components/previews/bluesky-preview';
 import { LinkedInPreview } from '@/components/previews/linkedin-preview';
 import { TikTokPreview } from '@/components/previews/tiktok-preview';
-import { Accordion } from '@/components/ui/accordion';
-import { EditorSection } from '@/components/editor-section';
+import { PostEditor } from '@/components/post-editor';
 
 export type Comment = GenerateRealisticCommentsOutput['comments'][0] & { profilePicUrl?: string; replies?: Reply[] };
 export type Reply = NonNullable<GenerateRealisticCommentsOutput['comments'][0]['replies']>[0] & { profilePicUrl?: string };
 export type SocialPlatform = 'facebook' | 'instagram' | 'twitter' | 'threads' | 'bluesky' | 'linkedin' | 'tiktok';
-type GenerationType = 'postContent' | 'postMedia' | 'postAudio' | 'profilePic' | 'comments' | 'random';
+export type GenerationType = 'postContent' | 'postMedia' | 'postAudio' | 'profilePic' | 'comments' | 'random';
 
 export default function Home() {
   const [isGenerating, setIsGenerating] = useState<GenerationType[]>([]);
@@ -97,6 +62,55 @@ export default function Home() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [isDownloading, setIsDownloading] = useState(false);
 
+  // Engagement State
+  const [likes, setLikes] = useState(128);
+  const [reposts, setReposts] = useState(42);
+  const [shares, setShares] = useState(23);
+  const [recommendations, setRecommendations] = useState(78);
+  const [isLiked, setIsLiked] = useState(false);
+
+  const editorState = {
+    profileName,
+    username,
+    profilePic,
+    profilePicPrompt,
+    postTopic,
+    postContent,
+    postImage,
+    postVideo,
+    postMediaPrompt,
+    postAudio,
+    timestamp,
+    numberOfComments,
+    isVerified,
+    verifiedColor,
+    likes,
+    reposts,
+    shares,
+    recommendations,
+  };
+
+  const setEditorState = {
+    setProfileName,
+    setUsername,
+    setProfilePic,
+    setProfilePicPrompt,
+    setPostTopic,
+    setPostContent,
+    setPostImage,
+    setPostVideo,
+    setPostMediaPrompt,
+    setPostAudio,
+    setTimestamp,
+    setNumberOfComments,
+    setIsVerified,
+    setVerifiedColor,
+    setLikes,
+    setReposts,
+    setShares,
+    setRecommendations,
+  };
+
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
     if (savedTheme) {
@@ -119,13 +133,6 @@ export default function Home() {
   const toggleTheme = () => {
     setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
   };
-
-  // Engagement State
-  const [likes, setLikes] = useState(128);
-  const [reposts, setReposts] = useState(42);
-  const [shares, setShares] = useState(23);
-  const [recommendations, setRecommendations] = useState(78);
-  const [isLiked, setIsLiked] = useState(false);
 
   const generateProfilePictures = useCallback((commentsToProcess: Comment[]) => {
       commentsToProcess.forEach((comment) => {
@@ -347,148 +354,6 @@ export default function Home() {
   };
 
 
-  const editorContent = (
-    <Accordion type="multiple" defaultValue={['profile', 'content']} className="w-full">
-      <EditorSection
-        title="Perfil"
-        description="Informações do usuário e aparência."
-        icon={<Smile className="w-4 h-4" />}
-        id="profile"
-      >
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="profile-name" className="flex items-center gap-2"><User className="w-4 h-4" /> Nome do Perfil</Label>
-            <Input id="profile-name" value={profileName} onChange={(e) => setProfileName(e.target.value)} />
-          </div>
-          {['twitter', 'threads', 'bluesky', 'tiktok', 'instagram'].includes(platform) && (
-            <div className="space-y-2">
-              <Label htmlFor="username" className="flex items-center gap-2">@ Nome de usuário</Label>
-              <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} />
-            </div>
-          )}
-           <div className="flex items-center space-x-2 pt-2">
-                <Switch id="verified-switch" checked={isVerified} onCheckedChange={setIsVerified} />
-                <Label htmlFor="verified-switch" className="flex items-center gap-2"><BadgeCheck className="w-4 h-4" /> Verificado</Label>
-            </div>
-            {isVerified && (
-                <div className="space-y-2">
-                <Label htmlFor="verified-color" className="flex items-center gap-2">Cor do Selo</Label>
-                <Input id="verified-color" type="color" value={verifiedColor} onChange={(e) => setVerifiedColor(e.target.value)} className="p-1 h-10 w-full" />
-                </div>
-            )}
-           <div className="space-y-2">
-            <Label htmlFor="profile-pic" className="flex items-center gap-2"><ImageIcon className="w-4 h-4" /> URL da Foto de Perfil</Label>
-            <Input id="profile-pic" value={profilePic} onChange={(e) => setProfilePic(e.target.value)} placeholder="Cole uma URL ou gere com IA"/>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="profile-pic-prompt" className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> Gerar Foto com IA</Label>
-            <div className="flex items-center gap-2">
-              <Input id="profile-pic-prompt" value={profilePicPrompt} onChange={(e) => setProfilePicPrompt(e.target.value)} placeholder="Ex: homem sorrindo"/>
-              <Button variant="outline" size="icon" onClick={() => handleGenerate('profilePic')} disabled={isGenerating.includes('profilePic') || isPending} aria-label="Gerar foto com IA">
-                {isGenerating.includes('profilePic') ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </EditorSection>
-      <EditorSection
-        title="Conteúdo do Post"
-        description="Texto, mídia e áudio da publicação."
-        icon={<FileText className="w-4 h-4" />}
-        id="content"
-      >
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="post-topic" className="flex items-center gap-2">Tópico para o Post (IA)</Label>
-            <Input id="post-topic" value={postTopic} onChange={(e) => setPostTopic(e.target.value)} placeholder="Sobre o que deve ser o post?"/>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="post-content" className="flex items-center gap-2">Conteúdo do Post</Label>
-            <div className="flex items-start gap-2">
-                <Textarea id="post-content" value={postContent} onChange={(e) => setPostContent(e.target.value)} rows={5} className="flex-1"/>
-                <Button variant="outline" size="icon" onClick={() => handleGenerate('postContent')} disabled={isGenerating.includes('postContent') || isPending} aria-label="Gerar conteúdo do post" className="h-auto">
-                    {isGenerating.includes('postContent') ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                </Button>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2"><AudioLines className="w-4 h-4" /> Áudio do Post (TTS)</Label>
-            <div className="flex items-center gap-2">
-              <Button onClick={() => handleGenerate('postAudio')} disabled={isGenerating.includes('postAudio') || isPending} className="w-full" variant="outline">
-                {isGenerating.includes('postAudio') ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                Gerar Áudio com IA
-              </Button>
-              {postAudio && (
-                <Button variant="ghost" size="icon" onClick={() => setPostAudio('')} aria-label="Remover áudio">
-                    <X className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          </div>
-          { platform !== 'tiktok' && (
-            <div className="space-y-2">
-                <Label htmlFor="post-image" className="flex items-center gap-2"><FileImage className="w-4 h-4" /> URL da Imagem do Post</Label>
-                <div className="flex items-center gap-2">
-                <Input id="post-image" value={postImage} onChange={(e) => setPostImage(e.target.value)} placeholder="Cole uma URL de imagem aqui"/>
-                <Button variant="ghost" size="icon" onClick={() => {setPostImage(''); setPostVideo('');}} aria-label="Remover imagem" className="h-9 w-9">
-                    <X className="h-4 w-4" />
-                </Button>
-                </div>
-            </div>
-          )}
-          <div className="space-y-2">
-             <Label htmlFor="post-media-prompt" className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4" /> Gerar {platform === 'tiktok' ? 'Vídeo' : 'Imagem'} com IA
-            </Label>
-            <div className="flex items-center gap-2">
-              <Input id="post-media-prompt" value={postMediaPrompt} onChange={(e) => setPostMediaPrompt(e.target.value)} placeholder={platform === 'tiktok' ? "Ex: um drone voando sobre uma cidade" : "Ex: um gato em um telhado"}/>
-              <Button variant="outline" size="icon" onClick={() => handleGenerate('postMedia')} disabled={isGenerating.includes('postMedia') || isPending} aria-label={`Gerar ${platform === 'tiktok' ? 'vídeo' : 'imagem'} com IA`}>
-                {isGenerating.includes('postMedia') ? <Loader2 className="h-4 w-4 animate-spin" /> : (platform === 'tiktok' ? <Video className="h-4 w-4" /> : <ImageIcon className="h-4 w-4" />) }
-              </Button>
-            </div>
-          </div>
-        </div>
-      </EditorSection>
-      <EditorSection
-        title="Engajamento e Detalhes"
-        description="Métricas, data e outras informações."
-        icon={<BarChart className="w-4 h-4" />}
-        id="engagement"
-      >
-        <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="timestamp" className="flex items-center gap-2"><Clock className="w-4 h-4" /> Data e Hora</Label>
-              <Input id="timestamp" value={timestamp} onChange={(e) => setTimestamp(e.target.value)} />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="likes" className="flex items-center gap-2"><Heart className="w-4 h-4" /> Curtidas</Label>
-                <Input id="likes" type="number" value={likes} onChange={(e) => setLikes(Number(e.target.value))} />
-              </div>
-              {(platform === 'facebook' || platform === 'tiktok') && (
-                <div className="space-y-2">
-                  <Label htmlFor="shares" className="flex items-center gap-2"><Share2 className="w-4 h-4" /> Compartilhamentos</Label>
-                  <Input id="shares" type="number" value={shares} onChange={(e) => setShares(Number(e.target.value))} />
-                </div>
-              )}
-              {(platform === 'twitter' || platform === 'threads' || platform === 'bluesky') && (
-                  <div className="space-y-2">
-                    <Label htmlFor="reposts" className="flex items-center gap-2"><Repeat className="w-4 h-4" /> Reposts</Label>
-                    <Input id="reposts" type="number" value={reposts} onChange={(e) => setReposts(Number(e.target.value))} />
-                  </div>
-              )}
-              {platform === 'linkedin' && (
-                <div className="space-y-2">
-                  <Label htmlFor="recommendations" className="flex items-center gap-2"><Linkedin className="w-4 h-4" /> Recomendações</Label>
-                  <Input id="recommendations" type="number" value={recommendations} onChange={(e) => setRecommendations(Number(e.target.value))} />
-                </div>
-              )}
-            </div>
-        </div>
-      </EditorSection>
-    </Accordion>
-  );
-
   const previewProps = {
     profileName,
     username,
@@ -554,65 +419,31 @@ export default function Home() {
         <main className="grid md:grid-cols-5 gap-8">
           {/* Editor Column */}
           <div className="md:col-span-2">
-            <Card className="sticky top-8 shadow-lg">
-              <CardHeader className="flex-row items-center justify-between">
-                <div>
-                    <CardTitle>Editor de Post</CardTitle>
-                    <CardDescription>
-                    Selecione a plataforma e modifique os detalhes.
-                    </CardDescription>
-                </div>
-                <Button onClick={() => handleGenerate('random')} disabled={isGenerating.includes('random') || isPending} size="icon" variant="outline" aria-label="Surpreenda-me">
-                    {isGenerating.includes('random') ? <Loader2 className="h-5 w-5 animate-spin" /> : <WandSparkles className="h-5 w-5 text-accent" />}
-                </Button>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                 <div className="flex gap-2">
-                  <Button onClick={handleSaveTemplate} className="w-full">
-                    <Save className="mr-2 h-4 w-4" />
-                    Salvar Modelo
-                  </Button>
-                  <Button onClick={handleLoadTemplate} variant="outline" className="w-full">
-                    <FolderOpen className="mr-2 h-4 w-4" />
-                    Carregar Modelo
-                  </Button>
-                </div>
-                <Separator/>
-                <Tabs value={platform} onValueChange={(value) => setPlatform(value as SocialPlatform)} className="w-full">
-                  <TabsList className="grid w-full grid-cols-3 md:grid-cols-4 h-auto">
-                    <TabsTrigger value="instagram">Instagram</TabsTrigger>
-                    <TabsTrigger value="facebook">Facebook</TabsTrigger>
-                    <TabsTrigger value="twitter">Twitter</TabsTrigger>
-                    <TabsTrigger value="threads">Threads</TabsTrigger>
-                    <TabsTrigger value="bluesky">Blue Sky</TabsTrigger>
-                    <TabsTrigger value="linkedin">LinkedIn</TabsTrigger>
-                    <TabsTrigger value="tiktok">TikTok</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="facebook" className="mt-6">{editorContent}</TabsContent>
-                  <TabsContent value="instagram" className="mt-6">{editorContent}</TabsContent>
-                  <TabsContent value="twitter" className="mt-6">{editorContent}</TabsContent>
-                  <TabsContent value="threads" className="mt-6">{editorContent}</TabsContent>
-                  <TabsContent value="bluesky" className="mt-6">{editorContent}</TabsContent>
-                  <TabsContent value="linkedin" className="mt-6">{editorContent}</TabsContent>
-                  <TabsContent value="tiktok" className="mt-6">{editorContent}</TabsContent>
-                </Tabs>
-                <Separator/>
-                <div className="space-y-2">
-                  <Label htmlFor="numberOfComments" className="flex items-center gap-2"><Users className="w-4 h-4" /> Número de Comentários</Label>
-                  <Input id="numberOfComments" type="number" value={numberOfComments} onChange={(e) => setNumberOfComments(Number(e.target.value))} min={1}/>
-                </div>
-              </CardContent>
-              <CardFooter>
-                 <Button onClick={() => handleGenerate('comments')} disabled={isGenerating.includes('comments') || isPending} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-                  {isGenerating.includes('comments') ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Gerando...
-                    </>
-                  ) : 'Gerar Comentários com IA'}
-                </Button>
-              </CardFooter>
+             <Card className="sticky top-8 shadow-lg">
+                <CardHeader className="flex-row items-center justify-between">
+                    <div>
+                        <CardTitle>Editor de Post</CardTitle>
+                        <CardDescription>
+                        Selecione a plataforma e modifique os detalhes.
+                        </CardDescription>
+                    </div>
+                    <Button onClick={() => handleGenerate('random')} disabled={isGenerating.includes('random') || isPending} size="icon" variant="outline" aria-label="Surpreenda-me">
+                        {isGenerating.includes('random') ? <Loader2 className="h-5 w-5 animate-spin" /> : <WandSparkles className="h-5 w-5 text-accent" />}
+                    </Button>
+                </CardHeader>
+                <CardContent>
+                    <PostEditor 
+                        platform={platform}
+                        setPlatform={setPlatform}
+                        isGenerating={isGenerating}
+                        isPending={isPending}
+                        handleGenerate={handleGenerate}
+                        handleSaveTemplate={handleSaveTemplate}
+                        handleLoadTemplate={handleLoadTemplate}
+                        editorState={editorState}
+                        setEditorState={setEditorState}
+                    />
+                </CardContent>
             </Card>
           </div>
 
