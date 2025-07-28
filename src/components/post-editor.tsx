@@ -66,72 +66,72 @@ export function PostEditor({
     const editorContent = (
     <Accordion type="multiple" defaultValue={['profile', 'content']} className="w-full">
       <EditorSection
+        id="profile"
         title="Perfil"
         description="Informações do usuário e aparência."
-        icon={<Smile className="w-4 h-4" />}
-        id="profile"
+        icon={<Smile className="w-4 h-4 text-muted-foreground" />}
       >
-        <div className="space-y-4">
+        <div className="space-y-4 p-1">
           <div className="space-y-2">
-            <Label htmlFor="profile-name" className="flex items-center gap-2"><User className="w-4 h-4" /> Nome do Perfil</Label>
+            <Label htmlFor="profile-name">Nome do Perfil</Label>
             <Input id="profile-name" value={editorState.profileName} onChange={(e) => setEditorState.setProfileName(e.target.value)} />
           </div>
           {['twitter', 'threads', 'bluesky', 'tiktok', 'instagram'].includes(platform) && (
             <div className="space-y-2">
-              <Label htmlFor="username" className="flex items-center gap-2">@ Nome de usuário</Label>
+              <Label htmlFor="username">@ Nome de usuário</Label>
               <Input id="username" value={editorState.username} onChange={(e) => setEditorState.setUsername(e.target.value)} />
             </div>
           )}
            <div className="flex items-center space-x-2 pt-2">
                 <Switch id="verified-switch" checked={editorState.isVerified} onCheckedChange={setEditorState.setIsVerified} />
-                <Label htmlFor="verified-switch" className="flex items-center gap-2"><BadgeCheck className="w-4 h-4" /> Verificado</Label>
+                <Label htmlFor="verified-switch">Verificado</Label>
             </div>
             {editorState.isVerified && (
                 <div className="space-y-2">
-                <Label htmlFor="verified-color" className="flex items-center gap-2">Cor do Selo</Label>
+                <Label htmlFor="verified-color">Cor do Selo</Label>
                 <Input id="verified-color" type="color" value={editorState.verifiedColor} onChange={(e) => setEditorState.setVerifiedColor(e.target.value)} className="p-1 h-10 w-full" />
                 </div>
             )}
            <div className="space-y-2">
-            <Label htmlFor="profile-pic" className="flex items-center gap-2"><ImageIcon className="w-4 h-4" /> URL da Foto de Perfil</Label>
+            <Label htmlFor="profile-pic">URL da Foto de Perfil</Label>
             <Input id="profile-pic" value={editorState.profilePic} onChange={(e) => setEditorState.setProfilePic(e.target.value)} placeholder="Cole uma URL ou gere com IA"/>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="profile-pic-prompt" className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> Gerar Foto com IA</Label>
+            <Label htmlFor="profile-pic-prompt">Gerar Foto com IA</Label>
             <div className="flex items-center gap-2">
               <Input id="profile-pic-prompt" value={editorState.profilePicPrompt} onChange={(e) => setEditorState.setProfilePicPrompt(e.target.value)} placeholder="Ex: homem sorrindo"/>
               <Button variant="outline" size="icon" onClick={() => handleGenerate('profilePic')} disabled={isGenerating.includes('profilePic') || isPending} aria-label="Gerar foto com IA">
-                {isGenerating.includes('profilePic') ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                {isGenerating.includes('profilePic') ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 text-accent" />}
               </Button>
             </div>
           </div>
         </div>
       </EditorSection>
       <EditorSection
+        id="content"
         title="Conteúdo do Post"
         description="Texto, mídia e áudio da publicação."
-        icon={<FileText className="w-4 h-4" />}
-        id="content"
+        icon={<FileText className="w-4 h-4 text-muted-foreground" />}
       >
-        <div className="space-y-4">
+        <div className="space-y-4 p-1">
           <div className="space-y-2">
-            <Label htmlFor="post-topic" className="flex items-center gap-2">Tópico para o Post (IA)</Label>
+            <Label htmlFor="post-topic">Tópico para o Post (IA)</Label>
             <Input id="post-topic" value={editorState.postTopic} onChange={(e) => setEditorState.setPostTopic(e.target.value)} placeholder="Sobre o que deve ser o post?"/>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="post-content" className="flex items-center gap-2">Conteúdo do Post</Label>
+            <Label htmlFor="post-content">Conteúdo do Post</Label>
             <div className="flex items-start gap-2">
                 <Textarea id="post-content" value={editorState.postContent} onChange={(e) => setEditorState.setPostContent(e.target.value)} rows={5} className="flex-1"/>
-                <Button variant="outline" size="icon" onClick={() => handleGenerate('postContent')} disabled={isGenerating.includes('postContent') || isPending} aria-label="Gerar conteúdo do post" className="h-auto">
-                    {isGenerating.includes('postContent') ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                <Button variant="outline" size="icon" onClick={() => handleGenerate('postContent')} disabled={isGenerating.includes('postContent') || isPending} aria-label="Gerar conteúdo do post" className="h-auto aspect-square">
+                    {isGenerating.includes('postContent') ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 text-accent" />}
                 </Button>
             </div>
           </div>
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><AudioLines className="w-4 h-4" /> Áudio do Post (TTS)</Label>
+            <Label>Áudio do Post (TTS)</Label>
             <div className="flex items-center gap-2">
               <Button onClick={() => handleGenerate('postAudio')} disabled={isGenerating.includes('postAudio') || isPending} className="w-full" variant="outline">
-                {isGenerating.includes('postAudio') ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                {isGenerating.includes('postAudio') ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <AudioLines className="mr-2 h-4 w-4" />}
                 Gerar Áudio com IA
               </Button>
               {editorState.postAudio && (
@@ -143,7 +143,7 @@ export function PostEditor({
           </div>
           { platform !== 'tiktok' && (
             <div className="space-y-2">
-                <Label htmlFor="post-image" className="flex items-center gap-2"><FileImage className="w-4 h-4" /> URL da Imagem do Post</Label>
+                <Label htmlFor="post-image">URL da Imagem do Post</Label>
                 <div className="flex items-center gap-2">
                 <Input id="post-image" value={editorState.postImage} onChange={(e) => setEditorState.setPostImage(e.target.value)} placeholder="Cole uma URL de imagem aqui"/>
                 <Button variant="ghost" size="icon" onClick={() => {setEditorState.setPostImage(''); setEditorState.setPostVideo('');}} aria-label="Remover imagem" className="h-9 w-9">
@@ -153,49 +153,49 @@ export function PostEditor({
             </div>
           )}
           <div className="space-y-2">
-             <Label htmlFor="post-media-prompt" className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4" /> Gerar {platform === 'tiktok' ? 'Vídeo' : 'Imagem'} com IA
+             <Label htmlFor="post-media-prompt">
+              Gerar {platform === 'tiktok' ? 'Vídeo' : 'Imagem'} com IA
             </Label>
             <div className="flex items-center gap-2">
               <Input id="post-media-prompt" value={editorState.postMediaPrompt} onChange={(e) => setEditorState.setPostMediaPrompt(e.target.value)} placeholder={platform === 'tiktok' ? "Ex: um drone voando sobre uma cidade" : "Ex: um gato em um telhado"}/>
               <Button variant="outline" size="icon" onClick={() => handleGenerate('postMedia')} disabled={isGenerating.includes('postMedia') || isPending} aria-label={`Gerar ${platform === 'tiktok' ? 'vídeo' : 'imagem'} com IA`}>
-                {isGenerating.includes('postMedia') ? <Loader2 className="h-4 w-4 animate-spin" /> : (platform === 'tiktok' ? <Video className="h-4 w-4" /> : <ImageIcon className="h-4 w-4" />) }
+                {isGenerating.includes('postMedia') ? <Loader2 className="h-4 w-4 animate-spin" /> : (platform === 'tiktok' ? <Video className="h-4 w-4 text-accent" /> : <ImageIcon className="h-4 w-4 text-accent" />) }
               </Button>
             </div>
           </div>
         </div>
       </EditorSection>
       <EditorSection
+        id="engagement"
         title="Engajamento e Detalhes"
         description="Métricas, data e outras informações."
-        icon={<BarChart className="w-4 h-4" />}
-        id="engagement"
+        icon={<BarChart className="w-4 h-4 text-muted-foreground" />}
       >
-        <div className="space-y-4">
+        <div className="space-y-4 p-1">
             <div className="space-y-2">
-              <Label htmlFor="timestamp" className="flex items-center gap-2"><Clock className="w-4 h-4" /> Data e Hora</Label>
+              <Label htmlFor="timestamp">Data e Hora</Label>
               <Input id="timestamp" value={editorState.timestamp} onChange={(e) => setEditorState.setTimestamp(e.target.value)} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="likes" className="flex items-center gap-2"><Heart className="w-4 h-4" /> Curtidas</Label>
+                <Label htmlFor="likes">Curtidas</Label>
                 <Input id="likes" type="number" value={editorState.likes} onChange={(e) => setEditorState.setLikes(Number(e.target.value))} />
               </div>
               {(platform === 'facebook' || platform === 'tiktok') && (
                 <div className="space-y-2">
-                  <Label htmlFor="shares" className="flex items-center gap-2"><Share2 className="w-4 h-4" /> Compartilhamentos</Label>
+                  <Label htmlFor="shares">Compartilhamentos</Label>
                   <Input id="shares" type="number" value={editorState.shares} onChange={(e) => setEditorState.setShares(Number(e.target.value))} />
                 </div>
               )}
               {(platform === 'twitter' || platform === 'threads' || platform === 'bluesky') && (
                   <div className="space-y-2">
-                    <Label htmlFor="reposts" className="flex items-center gap-2"><Repeat className="w-4 h-4" /> Reposts</Label>
+                    <Label htmlFor="reposts">Reposts</Label>
                     <Input id="reposts" type="number" value={editorState.reposts} onChange={(e) => setEditorState.setReposts(Number(e.target.value))} />
                   </div>
               )}
               {platform === 'linkedin' && (
                 <div className="space-y-2">
-                  <Label htmlFor="recommendations" className="flex items-center gap-2"><Linkedin className="w-4 h-4" /> Recomendações</Label>
+                  <Label htmlFor="recommendations">Recomendações</Label>
                   <Input id="recommendations" type="number" value={editorState.recommendations} onChange={(e) => setEditorState.setRecommendations(Number(e.target.value))} />
                 </div>
               )}
@@ -239,7 +239,7 @@ export function PostEditor({
             </Tabs>
             <Separator/>
             <div className="space-y-2">
-                <Label htmlFor="numberOfComments" className="flex items-center gap-2"><Users className="w-4 h-4" /> Número de Comentários</Label>
+                <Label htmlFor="numberOfComments" className="flex items-center gap-2"><Users className="mr-2 h-4 w-4" /> Número de Comentários</Label>
                 <Input id="numberOfComments" type="number" value={editorState.numberOfComments} onChange={(e) => setEditorState.setNumberOfComments(Number(e.target.value))} min={1}/>
             </div>
              <CardFooter className="p-0">
@@ -249,7 +249,12 @@ export function PostEditor({
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Gerando...
                     </>
-                  ) : 'Gerar Comentários com IA'}
+                  ) : (
+                    <>
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    Gerar Comentários com IA
+                    </>
+                  )}
                 </Button>
               </CardFooter>
         </div>
