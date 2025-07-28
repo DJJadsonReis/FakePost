@@ -7,17 +7,27 @@ export function AdBlockDetector({ children }: { children: React.ReactNode }) {
   const [isAdBlockerDetected, setIsAdBlockerDetected] = useState(false);
 
   useEffect(() => {
-    const checkAdBlocker = async () => {
-      try {
-        await fetch('/ads.js', { method: 'HEAD', mode: 'no-cors' });
-      } catch (error) {
-        // This error indicates that the request was blocked
-        setIsAdBlockerDetected(true);
-        console.warn('Ad blocker detected.');
-      }
-    };
-    checkAdBlocker();
+    // This is the bait file. Ad blockers will prevent this from being fetched.
+    const baitFile = new Request('/ads.js', {
+      method: 'HEAD',
+      mode: 'no-cors',
+    });
+
+    // We assume an ad blocker is present initially.
+    // If the fetch succeeds, we know there isn't one.
+    // If it fails, the error is caught, and we know an ad blocker is active.
+    fetch(baitFile)
+        .then(response => {
+            // If the request succeeds, it means no ad blocker is active.
+            setIsAdBlockerDetected(false);
+        })
+        .catch(error => {
+            // This error indicates that the request was blocked
+            console.warn('Ad blocker detected.');
+            setIsAdBlockerDetected(true);
+        });
   }, []);
+
 
   if (isAdBlockerDetected) {
     return (
