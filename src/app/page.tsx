@@ -83,7 +83,7 @@ export default function Home() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [isVerified, setIsVerified] = useState(true);
   const [verifiedColor, setVerifiedColor] = useState('#1DA1F2');
-  const [platform, setPlatform] = useState<SocialPlatform>('twitter');
+  const [platform, setPlatform] = useState<SocialPlatform>('instagram');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -313,7 +313,7 @@ export default function Home() {
         <Label htmlFor="profile-name" className="flex items-center gap-2"><User className="w-4 h-4" /> Nome do Perfil</Label>
         <Input id="profile-name" value={profileName} onChange={(e) => setProfileName(e.target.value)} />
       </div>
-      {['twitter', 'threads', 'bluesky', 'tiktok'].includes(platform) && (
+      {['twitter', 'threads', 'bluesky', 'tiktok', 'instagram'].includes(platform) && (
         <div className="space-y-2">
           <Label htmlFor="username" className="flex items-center gap-2">@ Nome de usuário</Label>
           <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} />
@@ -496,11 +496,11 @@ export default function Home() {
         <CardHeader className="flex flex-row items-center justify-between p-3">
             <div className="flex items-center gap-3">
                 <Avatar className="h-8 w-8 border">
-                    <AvatarImage src={profilePic} alt={profileName} data-ai-hint="profile avatar" />
-                    <AvatarFallback>{profileName.substring(0,1)}</AvatarFallback>
+                    <AvatarImage src={profilePic} alt={username} data-ai-hint="profile avatar" />
+                    <AvatarFallback>{username.substring(0,1)}</AvatarFallback>
                 </Avatar>
                 <div className="flex items-center gap-1">
-                  <p className="font-bold text-sm">{profileName}</p>
+                  <p className="font-bold text-sm">{username}</p>
                    <VerifiedBadge className="h-4 w-4" />
                 </div>
             </div>
@@ -520,8 +520,8 @@ export default function Home() {
             </CardContent>
         )}
         
-        <CardContent className="p-3">
-            <div className="flex justify-between items-center mb-2">
+        <CardFooter className="p-3 flex-col items-start">
+            <div className="flex justify-between items-center mb-2 w-full">
                 <div className="flex gap-4">
                     <button onClick={handleLike} className="focus:outline-none">
                         <Heart className={cn("h-7 w-7", isLiked ? 'text-red-500 fill-red-500' : 'text-card-foreground')} />
@@ -531,20 +531,20 @@ export default function Home() {
                 </div>
             </div>
             <p className="font-bold text-sm mb-2">{likes.toLocaleString()} curtidas</p>
-            <div className="space-y-1">
+            <div className="space-y-1 w-full">
               <p className="whitespace-pre-wrap text-sm">
-                  <span className="font-bold">{profileName}</span>
+                  <span className="font-bold">{username}</span>
                   {' '}
                   {postContent}
               </p>
               {comments.length > 0 && (
-                  <div className="text-sm text-muted-foreground">
+                  <button className="text-sm text-muted-foreground">
                       Ver todos os {comments.length} comentários
-                  </div>
+                  </button>
               )}
             </div>
-            <p className="text-muted-foreground text-xs mt-2 uppercase">{timestamp}</p>
-        </CardContent>
+            <button className="text-muted-foreground text-xs mt-2 uppercase">{timestamp}</button>
+        </CardFooter>
     </Card>
   );
 
@@ -863,8 +863,8 @@ const renderTikTokPreview = () => (
                 <Separator/>
                 <Tabs value={platform} onValueChange={(value) => setPlatform(value as SocialPlatform)} className="w-full">
                   <TabsList className="grid w-full grid-cols-3 md:grid-cols-4 h-auto">
-                    <TabsTrigger value="facebook">Facebook</TabsTrigger>
                     <TabsTrigger value="instagram">Instagram</TabsTrigger>
+                    <TabsTrigger value="facebook">Facebook</TabsTrigger>
                     <TabsTrigger value="twitter">Twitter</TabsTrigger>
                     <TabsTrigger value="threads">Threads</TabsTrigger>
                     <TabsTrigger value="bluesky">Blue Sky</TabsTrigger>
