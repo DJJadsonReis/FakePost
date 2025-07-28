@@ -192,7 +192,7 @@ export default function Home() {
       </div>
        <div className="space-y-2">
           <Label htmlFor="post-image" className="flex items-center gap-2"><ImageIcon className="w-4 h-4" /> URL da Imagem do Post</Label>
-          <Input id="post-image" value={postImage} onChange={(e) => setPostImage(e.target.value)} />
+          <Input id="post-image" value={postImage} onChange={(e) => setPostImage(e.target.value)} placeholder="Deixe em branco para não ter imagem"/>
         </div>
       <div className="space-y-2">
         <Label htmlFor="timestamp" className="flex items-center gap-2"><Clock className="w-4 h-4" /> Data e Hora</Label>
@@ -220,7 +220,7 @@ export default function Home() {
   );
   
   const VerifiedBadge = ({className}: {className?: string}) => (
-    <BadgeCheck className={cn("text-white", className)} style={{ fill: verifiedColor }}/>
+    isVerified && <BadgeCheck className={cn("text-white", className)} style={{ fill: verifiedColor }}/>
   );
 
   const renderFacebookPreview = () => (
@@ -233,7 +233,7 @@ export default function Home() {
         <div className="grid gap-0.5">
           <div className="flex items-center gap-1">
             <p className="font-bold text-sm">{profileName}</p>
-            {isVerified && <VerifiedBadge className="h-4 w-4" />}
+            <VerifiedBadge className="h-4 w-4" />
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <span>{timestamp}</span>
@@ -304,7 +304,7 @@ export default function Home() {
                 </Avatar>
                 <div className="flex items-center gap-1">
                   <p className="font-bold text-sm">{profileName}</p>
-                   {isVerified && <VerifiedBadge className="h-4 w-4" />}
+                   <VerifiedBadge className="h-4 w-4" />
                 </div>
             </div>
             <MoreHorizontal className="h-5 w-5" />
@@ -361,7 +361,7 @@ export default function Home() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1">
                 <p className="font-bold">{profileName}</p>
-                {isVerified && <VerifiedBadge className="h-5 w-5" />}
+                <VerifiedBadge className="h-5 w-5" />
                 <p className="text-muted-foreground">{username}</p>
                 <span className="text-muted-foreground">·</span>
                 <p className="text-muted-foreground">{timestamp}</p>
@@ -406,7 +406,7 @@ export default function Home() {
                         </Avatar>
                         <div className="flex items-center gap-1">
                             <p className="font-bold">{profileName}</p>
-                            {isVerified && <VerifiedBadge className="h-5 w-5" />}
+                            <VerifiedBadge className="h-5 w-5" />
                         </div>
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
@@ -451,7 +451,7 @@ export default function Home() {
              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 flex-wrap">
                   <p className="font-bold">{profileName}</p>
-                   {isVerified && <VerifiedBadge className="h-5 w-5" />}
+                   <VerifiedBadge className="h-5 w-5" />
                   <p className="text-muted-foreground">{username}</p>
                   <span className="text-muted-foreground">·</span>
                   <p className="text-muted-foreground">{timestamp}</p>
@@ -585,8 +585,8 @@ export default function Home() {
         </main>
         
         <footer className="text-center mt-16 py-6 border-t border-border/50">
-          <p className="text-sm text-muted-foreground flex items-center justify-center gap-1.5">
-            Feito com <Heart className="w-4 h-4 text-white fill-current" /> por
+           <p className="text-sm text-muted-foreground flex items-center justify-center gap-1.5">
+            Feito com <Heart className={cn("w-4 h-4 fill-current", theme === 'light' ? 'text-red-500' : 'text-white')} /> por
             <a
               href="https://www.instagram.com/djjadsonreis"
               target="_blank"
@@ -596,8 +596,13 @@ export default function Home() {
               Jadson Reis
             </a>
           </p>
+          <p className="text-xs text-muted-foreground mt-2">
+            Este site foi criado para fins educacionais e não possui fins lucrativos.
+          </p>
         </footer>
       </div>
     </div>
   );
 }
+
+    
