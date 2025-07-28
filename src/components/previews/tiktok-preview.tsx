@@ -15,6 +15,7 @@ export function TikTokPreview({
   username,
   postContent,
   postVideo,
+  postAudio,
   timestamp,
   isVerified,
   verifiedColor,
@@ -70,10 +71,12 @@ export function TikTokPreview({
                  <p className="font-semibold text-sm">{timestamp}</p>
             </div>
             <p className="whitespace-pre-wrap mt-2 text-sm">{postContent}</p>
-             <div className="flex items-center gap-2 mt-2">
-                <Music className="h-4 w-4" />
-                <p className="text-sm font-medium truncate">som original - {profileName}</p>
-            </div>
+             {postAudio && (
+                <div className="flex items-center gap-2 mt-2">
+                    <Music className="h-4 w-4" />
+                    <p className="text-sm font-medium truncate">som original - {profileName}</p>
+                </div>
+             )}
         </div>
     </div>
   );
