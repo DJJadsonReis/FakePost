@@ -1,6 +1,11 @@
 'use server';
 
-import { GenerateRealisticCommentsOutput, generateRealisticComments } from '@/ai/flows/generate-comments';
+import {
+  GenerateRealisticCommentsOutput,
+  generateRealisticComments,
+  Comment as CommentData,
+  Reply as ReplyData,
+} from '@/ai/flows/generate-comments';
 import { generatePostAudio } from '@/ai/flows/generate-post-audio';
 import { generatePostContent } from '@/ai/flows/generate-post-content';
 import { generatePostImage } from '@/ai/flows/generate-image';
@@ -9,10 +14,43 @@ import { generatePostVideo } from '@/ai/flows/generate-video';
 import { generateRandomPost } from '@/ai/flows/generate-random-post';
 import type { SocialPlatform } from './page';
 
+type CommentWithPic = CommentData & { profilePicUrl?: string; replies?: ReplyWithPic[] };
+type ReplyWithPic = ReplyData & { profilePicUrl?: string };
+
+async function addProfilePicturesToComments(
+  comments: CommentData[]
+): Promise<CommentWithPic[]> {
+  const allUsers: (CommentData | ReplyData)[] = [];
+  comments.forEach(c => {
+    allUsers.push(c);
+    if (c.replies) {
+      allUsers.push(...c.replies);
+    }
+  });
+
+  const picPromises = allUsers.map(user => 
+      getAIGeneratedProfilePic(user.profilePicHint).then(res => ({ ...user, imageUrl: res.imageUrl }))
+  );
+  
+  const usersWithPics = await Promise.all(picPromises);
+  const picUrlMap = new Map<string, string | undefined>();
+  usersWithPics.forEach(u => picUrlMap.set(u.name + u.comment, u.imageUrl));
+
+  return comments.map(comment => ({
+    ...comment,
+    profilePicUrl: picUrlMap.get(comment.name + comment.comment),
+    replies: comment.replies?.map(reply => ({
+        ...reply,
+        profilePicUrl: picUrlMap.get(reply.name + reply.comment),
+    })),
+  }));
+}
+
+
 export async function getAIGeneratedComments(
   postContent: string,
   numberOfComments: number
-): Promise<{ comments?: GenerateRealisticCommentsOutput['comments']; error?: string }> {
+): Promise<{ comments?: CommentWithPic[]; error?: string }> {
   if (!postContent) {
     return { error: 'O conteúdo do post não pode estar vazio.' };
   }
@@ -32,7 +70,10 @@ export async function getAIGeneratedComments(
         'Um especialista no assunto',
       ],
     });
-    return { comments: result.comments };
+
+    const commentsWithPics = await addProfilePicturesToComments(result.comments);
+
+    return { comments: commentsWithPics };
   } catch (error) {
     console.error('Error generating comments:', error);
     return { error: 'Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.' };
@@ -121,23 +162,19 @@ export async function getAIGeneratedRandomPost(isTikTok: boolean): Promise<{
         postImageUrl?: string;
         postVideoUrl?: string;
     },
-    comments?: GenerateRealisticCommentsOutput['comments'];
+    comments?: CommentWithPic[];
     error?: string;
 }> {
     try {
         // 1. Generate all text content
         const textResult = await generateRandomPost();
         
-        // 2. Start generating images/video in parallel
+        // 2. Start generating images/video and comments in parallel
         const profilePicPromise = getAIGeneratedProfilePic(textResult.profilePicPrompt);
-        const postMediaPromise = isTikTok 
-            ? getAIGeneratedPostVideo(textResult.postMediaPrompt)
-            : getAIGeneratedPostImage(textResult.postMediaPrompt);
-
-        // 3. Start generating comments
+        const postMediaPromise = getAIGeneratedPostMedia(textResult.postMediaPrompt, isTikTok ? 'tiktok' : 'instagram');
         const commentsPromise = getAIGeneratedComments(textResult.postContent, 5);
         
-        // 4. Await all promises
+        // 3. Await all promises
         const [profilePicResult, postMediaResult, commentsResult] = await Promise.all([
             profilePicPromise,
             postMediaPromise,

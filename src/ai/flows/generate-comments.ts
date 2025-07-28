@@ -23,6 +23,8 @@ const ReplySchema = z.object({
     comment: z.string().describe("The generated reply text."),
     profilePicHint: z.string().describe("A 1-2 word hint for generating a profile picture, e.g., 'smiling man', 'woman with glasses'.")
 });
+export type Reply = z.infer<typeof ReplySchema>;
+
 
 const CommentSchema = z.object({
     name: z.string().describe("The full name of the commenter."),
@@ -30,6 +32,8 @@ const CommentSchema = z.object({
     profilePicHint: z.string().describe("A 1-2 word hint for generating a profile picture, e.g., 'smiling man', 'woman with glasses'."),
     replies: z.array(ReplySchema).optional().describe("A list of replies to this comment."),
 });
+export type Comment = z.infer<typeof CommentSchema>;
+
 
 const GenerateRealisticCommentsOutputSchema = z.object({
   comments: z.array(CommentSchema).describe('An array of generated comments, each with a name, comment, profile picture hint, and optional replies.'),

@@ -14,11 +14,10 @@ import {
   Heart,
   WandSparkles,
 } from 'lucide-react';
-import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedProfilePic, getAIGeneratedPostMedia, getAIGeneratedPostAudio, getAIGeneratedRandomPost } from './actions';
+import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedPostMedia, getAIGeneratedPostAudio, getAIGeneratedRandomPost } from './actions';
 import { useToast } from '@/hooks/use-toast';
 
-import type { GenerateRealisticCommentsOutput } from '@/ai/flows/generate-comments';
-
+import type { Comment as CommentType, Reply } from '@/ai/flows/generate-comments';
 import { FacebookPreview } from '@/components/previews/facebook-preview';
 import { InstagramPreview } from '@/components/previews/instagram-preview';
 import { TwitterPreview } from '@/components/previews/twitter-preview';
@@ -28,8 +27,8 @@ import { LinkedInPreview } from '@/components/previews/linkedin-preview';
 import { TikTokPreview } from '@/components/previews/tiktok-preview';
 import { PostEditor } from '@/components/post-editor';
 
-export type Comment = GenerateRealisticCommentsOutput['comments'][0] & { profilePicUrl?: string; replies?: Reply[] };
-export type Reply = NonNullable<GenerateRealisticCommentsOutput['comments'][0]['replies']>[0] & { profilePicUrl?: string };
+export type Comment = CommentType & { profilePicUrl?: string; replies?: ReplyWithPic[] };
+export type ReplyWithPic = Reply & { profilePicUrl?: string };
 export type SocialPlatform = 'facebook' | 'instagram' | 'twitter' | 'threads' | 'bluesky' | 'linkedin' | 'tiktok';
 export type GenerationType = 'postContent' | 'postMedia' | 'postAudio' | 'profilePic' | 'comments' | 'random';
 
@@ -134,47 +133,6 @@ export default function Home() {
     setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
   };
 
-  const generateProfilePictures = useCallback((commentsToProcess: Comment[]) => {
-      commentsToProcess.forEach((comment) => {
-        // Generate profile pic for the main comment
-        startTransition(async () => {
-          const picResult = await getAIGeneratedProfilePic(comment.profilePicHint);
-          if (picResult.imageUrl) {
-            setComments(prevComments => {
-              const newComments = [...prevComments];
-              const targetComment = newComments.find(c => c.comment === comment.comment && c.name === comment.name);
-              if (targetComment) {
-                targetComment.profilePicUrl = picResult.imageUrl;
-              }
-              return newComments;
-            });
-          }
-        });
-
-        // Generate profile pics for replies
-        if (comment.replies) {
-          comment.replies.forEach((reply) => {
-             startTransition(async () => {
-                const replyPicResult = await getAIGeneratedProfilePic(reply.profilePicHint);
-                if (replyPicResult.imageUrl) {
-                   setComments(prevComments => {
-                        const newComments = [...prevComments];
-                        const targetComment = newComments.find(c => c.comment === comment.comment && c.name === comment.name);
-                        if (targetComment && targetComment.replies) {
-                           const targetReply = targetComment.replies.find(r => r.comment === reply.comment && r.name === reply.name);
-                           if (targetReply) {
-                                targetReply.profilePicUrl = replyPicResult.imageUrl;
-                           }
-                        }
-                        return newComments;
-                   });
-                }
-             });
-          });
-        }
-    });
-  }, []);
-
   const handleGenerate = useCallback((type: GenerationType) => {
     setIsGenerating(prev => [...prev, type]);
      if (type === 'random') {
@@ -193,7 +151,7 @@ export default function Home() {
             if (result.postContent) setPostContent(result.postContent);
             break;
           case 'profilePic':
-            result = await getAIGeneratedProfilePic(profilePicPrompt);
+            result = await getAIGeneratedPostMedia(profilePicPrompt, 'instagram'); // Use instagram to force image
             if (result.imageUrl) setProfilePic(result.imageUrl);
             break;
           case 'postMedia':
@@ -214,9 +172,7 @@ export default function Home() {
           case 'comments':
             result = await getAIGeneratedComments(postContent, numberOfComments);
             if (result.comments) {
-              const newComments = result.comments as Comment[];
-              setComments(newComments);
-              generateProfilePictures(newComments);
+              setComments(result.comments);
             }
             break;
           case 'random':
@@ -231,9 +187,7 @@ export default function Home() {
                 setPostImage(result.post.postImageUrl || '');
                 setPostVideo(result.post.postVideoUrl || '');
                 setPostAudio('');
-                const newComments = result.comments as Comment[];
-                setComments(newComments);
-                generateProfilePictures(newComments);
+                setComments(result.comments);
                 setLikes(Math.floor(Math.random() * 1000) + 50);
                 setReposts(Math.floor(Math.random() * 200) + 10);
                 setShares(Math.floor(Math.random() * 100) + 5);
@@ -255,7 +209,7 @@ export default function Home() {
         setIsGenerating(prev => prev.filter(item => item !== type));
       }
     });
-  }, [postTopic, profilePicPrompt, postMediaPrompt, postContent, numberOfComments, platform, toast, generateProfilePictures]);
+  }, [postTopic, profilePicPrompt, postMediaPrompt, postContent, numberOfComments, platform, toast]);
 
 
   const handleLike = () => {
