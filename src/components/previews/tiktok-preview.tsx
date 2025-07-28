@@ -3,12 +3,11 @@ import {
   Heart,
   MessageCircle,
   Share2,
-  Music,
-  Dot,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { PreviewProps } from './preview-props';
 import { VerifiedBadge } from './verified-badge';
+import { PostAudioPlayer } from '../post-audio-player';
 
 export function TikTokPreview({
   profileName,
@@ -27,15 +26,16 @@ export function TikTokPreview({
 }: PreviewProps) {
   return (
     <div className="w-[300px] h-[550px] bg-black rounded-3xl shadow-lg relative overflow-hidden font-sans">
-        {postVideo && (
+        {postVideo ? (
           <video
-            key={postVideo} // Add key to force re-render when video src changes
             src={postVideo}
             autoPlay
             loop
             muted // Muted by default for autoplay
             className="absolute top-0 left-0 w-full h-full object-cover"
           />
+        ) : (
+          postImage && <Image src={postImage} alt="Post background" layout="fill" objectFit="cover" className="opacity-50" />
         )}
         <div className="absolute top-4 left-4 right-4 flex justify-center text-white">
             <p className="font-semibold mr-4">Seguindo</p>
@@ -64,19 +64,9 @@ export function TikTokPreview({
         </div>
 
         <div className="absolute bottom-4 left-4 right-4 text-white">
-            <div className="flex items-center gap-2">
-                 <p className="font-bold">{username}</p>
-                 <VerifiedBadge isVerified={isVerified} verifiedColor={verifiedColor} className="h-4 w-4" />
-                 <Dot />
-                 <p className="font-semibold text-sm">{timestamp}</p>
-            </div>
+            <p className="font-bold">{username}</p>
             <p className="whitespace-pre-wrap mt-2 text-sm">{postContent}</p>
-             {postAudio && (
-                <div className="flex items-center gap-2 mt-2">
-                    <Music className="h-4 w-4" />
-                    <p className="text-sm font-medium truncate">som original - {profileName}</p>
-                </div>
-             )}
+             <PostAudioPlayer postAudio={postAudio} />
         </div>
     </div>
   );

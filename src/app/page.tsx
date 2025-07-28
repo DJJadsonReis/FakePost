@@ -369,17 +369,11 @@ export default function Home() {
           {/* Preview Column */}
           <div className="md:col-span-3">
             <div className="flex flex-col items-center gap-4">
-              <div className="w-full p-4 bg-muted/50 rounded-lg">
-                  <div
-                    ref={previewRef}
-                    className="w-full flex justify-center"
-                    style={{
-                      backgroundColor:
-                        theme === 'light' ? 'white' : '#1a1a1a',
-                    }}
-                  >
-                   {renderPreview()}
-                  </div>
+              <div
+                ref={previewRef}
+                className="w-full bg-card rounded-lg flex justify-center"
+              >
+               {renderPreview()}
               </div>
               <Button onClick={handleDownloadImage} disabled={isDownloading} className="w-full max-w-xl">
                   {isDownloading ? (
