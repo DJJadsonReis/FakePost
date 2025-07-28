@@ -15,7 +15,6 @@ export function TikTokPreview({
   username,
   postContent,
   postVideo,
-  postAudio,
   timestamp,
   isVerified,
   verifiedColor,
@@ -72,14 +71,8 @@ export function TikTokPreview({
             </div>
             <p className="whitespace-pre-wrap mt-2 text-sm">{postContent}</p>
              <div className="flex items-center gap-2 mt-2">
-                { postAudio ? (
-                    <audio src={postAudio} controls className="w-full h-8 opacity-80" />
-                ) : (
-                    <>
-                        <Music className="h-4 w-4" />
-                        <p className="text-sm font-medium truncate">som original - {profileName}</p>
-                    </>
-                )}
+                <Music className="h-4 w-4" />
+                <p className="text-sm font-medium truncate">som original - {profileName}</p>
             </div>
         </div>
     </div>
