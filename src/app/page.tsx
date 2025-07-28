@@ -63,10 +63,14 @@ type Reply = NonNullable<GenerateRealisticCommentsOutput['comments'][0]['replies
 type SocialPlatform = 'facebook' | 'instagram' | 'twitter' | 'threads' | 'bluesky' | 'linkedin' | 'tiktok';
 
 export default function Home() {
+  const [isGenerating, setIsGenerating] = useState({
+    postContent: false,
+    postImage: false,
+    profilePic: false,
+    comments: false,
+  });
   const [isPending, startTransition] = useTransition();
-  const [isGeneratingProfilePic, startProfilePicTransition] = useTransition();
-  const [isGeneratingPost, startPostGenerationTransition] = useTransition();
-  const [isGeneratingPostImage, startPostImageGenerationTransition] = useTransition();
+
 
   const { toast } = useToast();
   const previewRef = useRef<HTMLDivElement>(null);
@@ -124,7 +128,7 @@ export default function Home() {
   const generateProfilePictures = (commentsToProcess: Comment[]) => {
       commentsToProcess.forEach((comment, index) => {
         // Generate profile pic for the main comment
-        startProfilePicTransition(async () => {
+        startTransition(async () => {
           const picResult = await getAIGeneratedProfilePic(comment.profilePicHint);
           if (picResult.imageUrl) {
             setComments(prevComments => {
@@ -141,7 +145,7 @@ export default function Home() {
         // Generate profile pics for replies
         if (comment.replies) {
           comment.replies.forEach((reply, replyIndex) => {
-             startProfilePicTransition(async () => {
+             startTransition(async () => {
                 const replyPicResult = await getAIGeneratedProfilePic(reply.profilePicHint);
                 if (replyPicResult.imageUrl) {
                    setComments(prevComments => {
@@ -163,79 +167,99 @@ export default function Home() {
   };
 
   const handleGenerateComments = () => {
+    setIsGenerating(prev => ({ ...prev, comments: true }));
     startTransition(async () => {
-      const result = await getAIGeneratedComments(postContent, numberOfComments);
-      if (result.error) {
-        toast({
-          variant: 'destructive',
-          title: 'Erro',
-          description: result.error,
-        });
-      } else if (result.comments) {
-        const newComments = result.comments as Comment[];
-        setComments(newComments);
-        toast({
-          title: 'Sucesso!',
-          description: 'Novos comentários foram gerados. Gerando fotos de perfil...',
-        });
-        generateProfilePictures(newComments);
+      try {
+        const result = await getAIGeneratedComments(postContent, numberOfComments);
+        if (result.error) {
+          toast({
+            variant: 'destructive',
+            title: 'Erro',
+            description: result.error,
+          });
+        } else if (result.comments) {
+          const newComments = result.comments as Comment[];
+          setComments(newComments);
+          toast({
+            title: 'Sucesso!',
+            description: 'Novos comentários foram gerados. Gerando fotos de perfil...',
+          });
+          generateProfilePictures(newComments);
+        }
+      } finally {
+        setIsGenerating(prev => ({ ...prev, comments: false }));
       }
     });
   };
   
   const handleGenerateProfilePic = () => {
-    startProfilePicTransition(async () => {
-      const result = await getAIGeneratedProfilePic(profilePicPrompt);
-       if (result.error) {
-        toast({
-          variant: 'destructive',
-          title: 'Erro',
-          description: result.error,
-        });
-      } else if (result.imageUrl) {
-        setProfilePic(result.imageUrl);
-        toast({
-          title: 'Sucesso!',
-          description: 'Nova foto de perfil foi gerada.',
-        });
+     setIsGenerating(prev => ({ ...prev, profilePic: true }));
+    startTransition(async () => {
+      try {
+        const result = await getAIGeneratedProfilePic(profilePicPrompt);
+         if (result.error) {
+          toast({
+            variant: 'destructive',
+            title: 'Erro',
+            description: result.error,
+          });
+        } else if (result.imageUrl) {
+          setProfilePic(result.imageUrl);
+          toast({
+            title: 'Sucesso!',
+            description: 'Nova foto de perfil foi gerada.',
+          });
+        }
+      } finally {
+        setIsGenerating(prev => ({ ...prev, profilePic: false }));
       }
     });
   };
 
   const handleGeneratePostContent = () => {
-    startPostGenerationTransition(async () => {
-      const result = await getAIGeneratedPostContent(postTopic);
-      if (result.error) {
-        toast({
-          variant: 'destructive',
-          title: 'Erro',
-          description: result.error,
-        });
-      } else if (result.postContent) {
-        setPostContent(result.postContent);
-        toast({
-          title: 'Sucesso!',
-          description: 'Novo conteúdo de post foi gerado.',
-        });
+    setIsGenerating(prev => ({ ...prev, postContent: true }));
+    startTransition(async () => {
+      try {
+        const result = await getAIGeneratedPostContent(postTopic);
+        if (result.error) {
+          toast({
+            variant: 'destructive',
+            title: 'Erro',
+            description: result.error,
+          });
+        } else if (result.postContent) {
+          setPostContent(result.postContent);
+          toast({
+            title: 'Sucesso!',
+            description: 'Novo conteúdo de post foi gerado.',
+          });
+        }
+      } finally {
+        setIsGenerating(prev => ({ ...prev, postContent: false }));
       }
     });
   };
 
   const handleGeneratePostImage = () => {
-    startPostImageGenerationTransition(async () => {
-      const result = await getAIGeneratedPostImage(postImagePrompt);
-      if (result.error) {
-        toast({
-          variant: 'destructive',
-          title: 'Erro',
-          description: result.error,
-        });
-      } else if (result.imageUrl) {
-        setPostImage(result.imageUrl);
-        toast({
-          title: 'Sucesso!',
-          description: 'Nova imagem de post foi gerada.',
-        });
+    setIsGenerating(prev => ({ ...prev, postImage: true }));
+    startTransition(async () => {
+      try {
+        const result = await getAIGeneratedPostImage(postImagePrompt);
+        if (result.error) {
+          toast({
+            variant: 'destructive',
+            title: 'Erro',
+            description: result.error,
+          });
+        } else if (result.imageUrl) {
+          setPostImage(result.imageUrl);
+          toast({
+            title: 'Sucesso!',
+            description: 'Nova imagem de post foi gerada.',
+          });
+        }
+      } finally {
+        setIsGenerating(prev => ({ ...prev, postImage: false }));
       }
     });
   };
@@ -363,8 +387,8 @@ export default function Home() {
         <Label htmlFor="profile-pic-prompt" className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> Gerar Foto de Perfil com IA</Label>
         <div className="flex items-center gap-2">
           <Input id="profile-pic-prompt" value={profilePicPrompt} onChange={(e) => setProfilePicPrompt(e.target.value)} placeholder="Ex: homem sorrindo"/>
-          <Button variant="outline" size="icon" onClick={handleGenerateProfilePic} disabled={isGeneratingProfilePic} aria-label="Gerar foto com IA">
-            {isGeneratingProfilePic ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+          <Button variant="outline" size="icon" onClick={handleGenerateProfilePic} disabled={isGenerating.profilePic} aria-label="Gerar foto com IA">
+            {isGenerating.profilePic ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
           </Button>
         </div>
       </div>
@@ -376,8 +400,8 @@ export default function Home() {
         <Label htmlFor="post-content" className="flex items-center gap-2"><MessageCircle className="w-4 h-4" /> Conteúdo do Post</Label>
         <div className="flex items-start gap-2">
             <Textarea id="post-content" value={postContent} onChange={(e) => setPostContent(e.target.value)} rows={5} className="flex-1"/>
-             <Button variant="outline" size="icon" onClick={handleGeneratePostContent} disabled={isGeneratingPost} aria-label="Gerar conteúdo do post" className="h-auto">
-                {isGeneratingPost ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+             <Button variant="outline" size="icon" onClick={handleGeneratePostContent} disabled={isGenerating.postContent} aria-label="Gerar conteúdo do post" className="h-auto">
+                {isGenerating.postContent ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             </Button>
         </div>
       </div>
@@ -394,8 +418,8 @@ export default function Home() {
         <Label htmlFor="post-image-prompt" className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> Gerar Imagem do Post com IA</Label>
         <div className="flex items-center gap-2">
           <Input id="post-image-prompt" value={postImagePrompt} onChange={(e) => setPostImagePrompt(e.target.value)} placeholder="Ex: um gato em um telhado"/>
-          <Button variant="outline" size="icon" onClick={handleGeneratePostImage} disabled={isGeneratingPostImage} aria-label="Gerar imagem do post com IA">
-            {isGeneratingPostImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+          <Button variant="outline" size="icon" onClick={handleGeneratePostImage} disabled={isGenerating.postImage} aria-label="Gerar imagem do post com IA">
+            {isGenerating.postImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
           </Button>
         </div>
       </div>
@@ -921,8 +945,8 @@ const renderTikTokPreview = () => (
                 </div>
               </CardContent>
               <CardFooter>
-                 <Button onClick={handleGenerateComments} disabled={isPending} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-                  {isPending ? (
+                 <Button onClick={handleGenerateComments} disabled={isGenerating.comments} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+                  {isGenerating.comments ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Gerando...
