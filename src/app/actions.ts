@@ -5,16 +5,20 @@ import { generatePostContent } from '@/ai/flows/generate-post-content';
 import { generateProfilePic } from '@/ai/flows/generate-profile-pic';
 
 export async function getAIGeneratedComments(
-  postContent: string
+  postContent: string,
+  numberOfComments: number
 ): Promise<{ comments?: GenerateRealisticCommentsOutput['comments']; error?: string }> {
   if (!postContent) {
     return { error: 'O conteúdo do post não pode estar vazio.' };
+  }
+  if (numberOfComments <= 0) {
+    return { error: 'O número de comentários deve ser maior que zero.'}
   }
 
   try {
     const result = await generateRealisticComments({
       postContent,
-      numberOfComments: 5,
+      numberOfComments,
       commenterProfiles: [
         'Um amigo apoiador',
         'Um estranho curioso',

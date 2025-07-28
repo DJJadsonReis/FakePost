@@ -46,6 +46,7 @@ import {
   FileText,
   Save,
   FolderOpen,
+  Users,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedProfilePic } from './actions';
@@ -81,6 +82,7 @@ export default function Home() {
   const [postImage, setPostImage] = useState('https://placehold.co/600x400.png');
   const [timestamp, setTimestamp] = useState('2h');
   const [comments, setComments] = useState<Comment[]>([]);
+  const [numberOfComments, setNumberOfComments] = useState(5);
   const [isVerified, setIsVerified] = useState(true);
   const [verifiedColor, setVerifiedColor] = useState('#1DA1F2');
   const [platform, setPlatform] = useState<SocialPlatform>('instagram');
@@ -160,7 +162,7 @@ export default function Home() {
 
   const handleGenerateComments = () => {
     startTransition(async () => {
-      const result = await getAIGeneratedComments(postContent);
+      const result = await getAIGeneratedComments(postContent, numberOfComments);
       if (result.error) {
         toast({
           variant: 'destructive',
@@ -880,6 +882,11 @@ const renderTikTokPreview = () => (
                   <TabsContent value="linkedin" className="mt-6 space-y-6">{commonEditorFields}</TabsContent>
                   <TabsContent value="tiktok" className="mt-6 space-y-6">{commonEditorFields}</TabsContent>
                 </Tabs>
+                <Separator/>
+                <div className="space-y-2">
+                  <Label htmlFor="numberOfComments" className="flex items-center gap-2"><Users className="w-4 h-4" /> Número de Comentários</Label>
+                  <Input id="numberOfComments" type="number" value={numberOfComments} onChange={(e) => setNumberOfComments(Number(e.target.value))} min={1}/>
+                </div>
               </CardContent>
               <CardFooter>
                  <Button onClick={handleGenerateComments} disabled={isPending} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
