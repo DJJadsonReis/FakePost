@@ -53,7 +53,9 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GenerateRealisticCommentsOutput } from '@/ai/flows/generate-comments';
 
-type Comment = GenerateRealisticCommentsOutput['comments'][0] & { profilePicUrl?: string; replies?: Comment[] };
+type Comment = GenerateRealisticCommentsOutput['comments'][0] & { profilePicUrl?: string; replies?: Reply[] };
+type Reply = NonNullable<GenerateRealisticCommentsOutput['comments'][0]['replies']>[0] & { profilePicUrl?: string };
+
 
 type SocialPlatform = 'facebook' | 'instagram' | 'twitter' | 'threads' | 'bluesky' | 'linkedin' | 'tiktok';
 
@@ -113,6 +115,47 @@ export default function Home() {
   const [recommendations, setRecommendations] = useState(78);
   const [isLiked, setIsLiked] = useState(false);
 
+  const generateProfilePictures = (commentsToProcess: Comment[]) => {
+      commentsToProcess.forEach((comment, index) => {
+        // Generate profile pic for the main comment
+        startProfilePicTransition(async () => {
+          const picResult = await getAIGeneratedProfilePic(comment.profilePicHint);
+          if (picResult.imageUrl) {
+            setComments(prevComments => {
+              const newComments = [...prevComments];
+              const targetComment = newComments.find(c => c.comment === comment.comment && c.name === comment.name);
+              if (targetComment) {
+                targetComment.profilePicUrl = picResult.imageUrl;
+              }
+              return newComments;
+            });
+          }
+        });
+
+        // Generate profile pics for replies
+        if (comment.replies) {
+          comment.replies.forEach((reply, replyIndex) => {
+             startProfilePicTransition(async () => {
+                const replyPicResult = await getAIGeneratedProfilePic(reply.profilePicHint);
+                if (replyPicResult.imageUrl) {
+                   setComments(prevComments => {
+                        const newComments = [...prevComments];
+                        const targetComment = newComments.find(c => c.comment === comment.comment && c.name === comment.name);
+                        if (targetComment && targetComment.replies) {
+                           const targetReply = targetComment.replies.find(r => r.comment === reply.comment && r.name === reply.name);
+                           if (targetReply) {
+                                targetReply.profilePicUrl = replyPicResult.imageUrl;
+                           }
+                        }
+                        return newComments;
+                   });
+                }
+             });
+          });
+        }
+    });
+  };
+
   const handleGenerateComments = () => {
     startTransition(async () => {
       const result = await getAIGeneratedComments(postContent);
@@ -123,25 +166,13 @@ export default function Home() {
           description: result.error,
         });
       } else if (result.comments) {
-        setComments(result.comments);
+        const newComments = result.comments as Comment[];
+        setComments(newComments);
         toast({
           title: 'Sucesso!',
           description: 'Novos comentários foram gerados. Gerando fotos de perfil...',
         });
-
-        // Generate profile pictures for each comment
-        result.comments.forEach((comment, index) => {
-          startProfilePicTransition(async () => {
-            const picResult = await getAIGeneratedProfilePic(comment.profilePicHint);
-            if (picResult.imageUrl) {
-              setComments(prevComments => {
-                const newComments = [...prevComments];
-                newComments[index].profilePicUrl = picResult.imageUrl;
-                return newComments;
-              });
-            }
-          });
-        });
+        generateProfilePictures(newComments);
       }
     });
   };
@@ -311,7 +342,7 @@ export default function Home() {
     isVerified && <BadgeCheck className={cn("text-white", className)} style={{ fill: verifiedColor, color: 'white' }}/>
   );
   
-  const CommentComponent = ({ comment }: { comment: Comment }) => (
+  const CommentComponent = ({ comment }: { comment: Comment | Reply }) => (
     <div className="flex items-start gap-2.5">
       <Avatar className="h-8 w-8">
         <AvatarImage src={comment.profilePicUrl || 'https://placehold.co/40x40.png'} alt={comment.name} data-ai-hint={comment.profilePicHint} />
@@ -322,13 +353,12 @@ export default function Home() {
           <p className="font-bold text-xs text-card-foreground">{comment.name}</p>
           <p className="text-sm text-card-foreground">{comment.comment}</p>
         </div>
-        {/* Placeholder for comment actions like "Like", "Reply", "Time" */}
         <div className="flex gap-2 text-xs text-muted-foreground px-2 pt-1">
           <button className="font-semibold hover:underline">Curtir</button>
           <button className="font-semibold hover:underline">Responder</button>
         </div>
 
-        {comment.replies && comment.replies.length > 0 && (
+        {'replies' in comment && comment.replies && comment.replies.length > 0 && (
           <div className="pt-2 space-y-3">
             {comment.replies.map((reply, index) => (
               <CommentComponent key={index} comment={reply} />
