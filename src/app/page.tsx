@@ -16,7 +16,7 @@ import {
   Save,
   FolderOpen,
 } from 'lucide-react';
-import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedPostMedia, getAIGeneratedPostAudio, getAIGeneratedRandomPost, getAIGeneratedProfilePic } from './actions';
+import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedPostMedia, getAIGeneratedPostAudio, getAIGeneratedRandomPost } from './actions';
 import { useToast } from '@/hooks/use-toast';
 
 import type { Comment as CommentType, Reply } from '@/ai/flows/generate-comments';
@@ -27,12 +27,13 @@ import { ThreadsPreview } from '@/components/previews/threads-preview';
 import { BlueSkyPreview } from '@/components/previews/bluesky-preview';
 import { LinkedInPreview } from '@/components/previews/linkedin-preview';
 import { TikTokPreview } from '@/components/previews/tiktok-preview';
+import { FakebookPreview } from '@/components/previews/fakebook-preview';
 import { PostEditor } from '@/components/post-editor';
 import { Separator } from '@/components/ui/separator';
 
 export type Comment = CommentType & { profilePicUrl?: string; replies?: ReplyWithPic[] };
 export type ReplyWithPic = Reply & { profilePicUrl?: string };
-export type SocialPlatform = 'facebook' | 'instagram' | 'twitter' | 'threads' | 'bluesky' | 'linkedin' | 'tiktok';
+export type SocialPlatform = 'facebook' | 'instagram' | 'twitter' | 'threads' | 'bluesky' | 'linkedin' | 'tiktok' | 'fakebook';
 export type GenerationType = 'postContent' | 'postMedia' | 'postAudio' | 'profilePic' | 'comments' | 'random';
 
 export default function Home() {
@@ -134,10 +135,6 @@ export default function Home() {
           case 'postContent':
             result = await getAIGeneratedPostContent(currentState.postTopic);
             if (result.postContent) updateEditorState({ postContent: result.postContent });
-            break;
-          case 'profilePic':
-            result = await getAIGeneratedProfilePic(currentState.profilePicPrompt);
-            if (result.imageUrl) updateEditorState({ profilePic: result.imageUrl });
             break;
           case 'postMedia':
             result = await getAIGeneratedPostMedia(currentState.postMediaPrompt, platform);
@@ -293,6 +290,7 @@ export default function Home() {
       case 'bluesky': return <BlueSkyPreview {...previewProps} />;
       case 'linkedin': return <LinkedInPreview {...previewProps} />;
       case 'tiktok': return <TikTokPreview {...previewProps} />;
+      case 'fakebook': return <FakebookPreview {...previewProps} />;
       default: return null;
     }
   }
@@ -369,12 +367,15 @@ export default function Home() {
           {/* Preview Column */}
           <div className="md:col-span-3">
             <div className="flex flex-col items-center gap-4">
-              <div
-                ref={previewRef}
-                className="w-full bg-card rounded-lg flex justify-center"
-              >
-               {renderPreview()}
-              </div>
+                <div className="w-full border rounded-lg p-2 bg-muted/50">
+                    <div
+                        ref={previewRef}
+                        className="w-full rounded-lg flex justify-center"
+                        style={{ backgroundColor: theme === 'dark' ? '#1a1a1a' : '#ffffff' }}
+                    >
+                        {renderPreview()}
+                    </div>
+                </div>
               <Button onClick={handleDownloadImage} disabled={isDownloading} className="w-full max-w-xl">
                   {isDownloading ? (
                     <>

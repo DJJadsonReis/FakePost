@@ -3,11 +3,10 @@ import {
   Heart,
   MessageCircle,
   Share2,
+  Music,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { PreviewProps } from './preview-props';
-import { VerifiedBadge } from './verified-badge';
-import { PostAudioPlayer } from '../post-audio-player';
 
 export function TikTokPreview({
   profileName,
@@ -15,9 +14,6 @@ export function TikTokPreview({
   postContent,
   postVideo,
   postAudio,
-  timestamp,
-  isVerified,
-  verifiedColor,
   likes,
   shares,
   comments,
@@ -35,7 +31,7 @@ export function TikTokPreview({
             className="absolute top-0 left-0 w-full h-full object-cover"
           />
         ) : (
-          postImage && <Image src={postImage} alt="Post background" layout="fill" objectFit="cover" className="opacity-50" />
+          <div className="absolute top-0 left-0 w-full h-full bg-black" />
         )}
         <div className="absolute top-4 left-4 right-4 flex justify-center text-white">
             <p className="font-semibold mr-4">Seguindo</p>
@@ -66,7 +62,12 @@ export function TikTokPreview({
         <div className="absolute bottom-4 left-4 right-4 text-white">
             <p className="font-bold">{username}</p>
             <p className="whitespace-pre-wrap mt-2 text-sm">{postContent}</p>
-             <PostAudioPlayer postAudio={postAudio} />
+             {postAudio && (
+                <div className="flex items-center gap-2 mt-2 text-sm">
+                    <Music className="h-4 w-4" />
+                    <p className="truncate">som original - {profileName}</p>
+                </div>
+            )}
         </div>
     </div>
   );

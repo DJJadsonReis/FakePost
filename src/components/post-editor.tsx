@@ -64,6 +64,7 @@ const platformConfig: Record<SocialPlatform, {
     'tiktok': { showUsername: true, showShares: true, mediaType: 'video' },
     'facebook': { showUsername: false, showShares: true, mediaType: 'imageOnly' },
     'linkedin': { showUsername: false, showRecommendations: true, mediaType: 'imageOnly' },
+    'fakebook': { showUsername: false, showShares: true, mediaType: 'imageOnly' },
 };
 
 
@@ -123,15 +124,6 @@ export function PostEditor({
            <div className="space-y-2">
             <Label htmlFor="profile-pic">URL da Foto de Perfil</Label>
             <Input id="profile-pic" value={editorState.profilePic} onChange={(e) => handleInputChange('profilePic', e.target.value)} placeholder="Cole uma URL ou gere com IA"/>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="profile-pic-prompt">Gerar Foto com IA</Label>
-            <div className="flex items-center gap-2">
-              <Input id="profile-pic-prompt" value={editorState.profilePicPrompt} onChange={(e) => handleInputChange('profilePicPrompt', e.target.value)} placeholder="Ex: homem sorrindo"/>
-              <Button variant="outline" size="icon" onClick={() => handleGenerate('profilePic')} disabled={isGenerating.includes('profilePic') || isPending} aria-label="Gerar foto com IA">
-                {isGenerating.includes('profilePic') ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 text-accent" />}
-              </Button>
-            </div>
           </div>
         </div>
       </EditorSection>
@@ -246,6 +238,7 @@ export function PostEditor({
                     <TabsTrigger value="bluesky">Blue Sky</TabsTrigger>
                     <TabsTrigger value="linkedin">LinkedIn</TabsTrigger>
                     <TabsTrigger value="tiktok">TikTok</TabsTrigger>
+                    <TabsTrigger value="fakebook">Fakebook</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="facebook" className="mt-6">{editorContent}</TabsContent>
@@ -255,6 +248,7 @@ export function PostEditor({
                 <TabsContent value="bluesky" className="mt-6">{editorContent}</TabsContent>
                 <TabsContent value="linkedin" className="mt-6">{editorContent}</TabsContent>
                 <TabsContent value="tiktok" className="mt-6">{editorContent}</TabsContent>
+                <TabsContent value="fakebook" className="mt-6">{editorContent}</TabsContent>
             </Tabs>
             <Separator/>
             <div className="space-y-2">
