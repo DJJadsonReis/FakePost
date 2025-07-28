@@ -72,7 +72,7 @@ export default function Home() {
   const [postImage, setPostImage] = useState('https://placehold.co/600x400.png');
   const [timestamp, setTimestamp] = useState('2h');
   const [comments, setComments] = useState<string[]>([]);
-  const [isVerified, setIsVerified] = useState(false);
+  const [isVerified, setIsVerified] = useState(true);
   const [platform, setPlatform] = useState<SocialPlatform>('facebook');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
@@ -211,6 +211,10 @@ export default function Home() {
       </div>
     </>
   );
+  
+  const VerifiedBadge = ({className}: {className?: string}) => (
+    <BadgeCheck className={cn("fill-blue-500 text-white", className)} />
+  );
 
   const renderFacebookPreview = () => (
     <Card className="w-full max-w-xl shadow-md transition-all duration-300 hover:shadow-xl font-sans">
@@ -222,7 +226,7 @@ export default function Home() {
         <div className="grid gap-0.5">
           <div className="flex items-center gap-1">
             <p className="font-bold text-sm">{profileName}</p>
-            {isVerified && <BadgeCheck className="h-4 w-4 text-blue-500 fill-blue-500" />}
+            {isVerified && <VerifiedBadge className="h-4 w-4" />}
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <span>{timestamp}</span>
@@ -293,7 +297,7 @@ export default function Home() {
                 </Avatar>
                 <div className="flex items-center gap-1">
                   <p className="font-bold text-sm">{profileName}</p>
-                   {isVerified && <BadgeCheck className="h-4 w-4 text-blue-500 fill-blue-500" />}
+                   {isVerified && <VerifiedBadge className="h-4 w-4" />}
                 </div>
             </div>
             <MoreHorizontal className="h-5 w-5" />
@@ -350,7 +354,7 @@ export default function Home() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1">
                 <p className="font-bold">{profileName}</p>
-                {isVerified && <BadgeCheck className="h-5 w-5 text-blue-500 fill-blue-500" />}
+                {isVerified && <VerifiedBadge className="h-5 w-5" />}
                 <p className="text-muted-foreground">{username}</p>
                 <span className="text-muted-foreground">·</span>
                 <p className="text-muted-foreground">{timestamp}</p>
@@ -395,7 +399,7 @@ export default function Home() {
                         </Avatar>
                         <div className="flex items-center gap-1">
                             <p className="font-bold">{profileName}</p>
-                            {isVerified && <BadgeCheck className="h-5 w-5 text-blue-500 fill-blue-500" />}
+                            {isVerified && <VerifiedBadge className="h-5 w-5" />}
                         </div>
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
@@ -440,7 +444,7 @@ export default function Home() {
              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 flex-wrap">
                   <p className="font-bold">{profileName}</p>
-                   {isVerified && <BadgeCheck className="h-5 w-5 text-blue-500 fill-blue-500" />}
+                   {isVerified && <VerifiedBadge className="h-5 w-5" />}
                   <p className="text-muted-foreground">{username}</p>
                   <span className="text-muted-foreground">·</span>
                   <p className="text-muted-foreground">{timestamp}</p>
@@ -553,7 +557,7 @@ export default function Home() {
           {/* Preview Column */}
           <div className="md:col-span-3">
             <div className="flex flex-col items-center gap-4">
-              <div ref={previewRef} className="w-full flex justify-center">
+              <div ref={previewRef} className="w-full flex justify-center p-4 bg-muted/50 rounded-lg">
                 {renderPreview()}
               </div>
               <Button onClick={handleDownloadImage} disabled={isDownloading} className="w-full max-w-xl">
