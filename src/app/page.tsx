@@ -161,7 +161,7 @@ export default function Home() {
           description: 'Não foi possível baixar a imagem. Tente novamente.',
         });
       });
-  }, [platform]);
+  }, [platform, toast]);
 
   const commonEditorFields = (
     <>
@@ -694,3 +694,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
