@@ -47,7 +47,7 @@ interface PostEditorProps {
     isPending: boolean;
     handleGenerate: (type: GenerationType) => void;
     editorState: any;
-    updateEditorState: (updates: any) => void;
+    updateEditorState: (updates: Partial<any>) => void;
 }
 
 export function PostEditor({
@@ -217,7 +217,7 @@ export function PostEditor({
     return (
         <div className="space-y-6">
             <Tabs value={platform} onValueChange={(value) => setPlatform(value as SocialPlatform)} className="w-full">
-                <TabsList className="h-auto flex-wrap">
+                <TabsList className="h-auto flex-wrap justify-start">
                     <TabsTrigger value="instagram">Instagram</TabsTrigger>
                     <TabsTrigger value="facebook">Facebook</TabsTrigger>
                     <TabsTrigger value="twitter">Twitter</TabsTrigger>

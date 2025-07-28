@@ -69,7 +69,7 @@ export function TikTokPreview({
         <div className="absolute bottom-4 left-4 right-4 text-white">
             <div className="flex items-center gap-2">
                  <p className="font-bold">{username}</p>
-                 {isVerified && <VerifiedBadge isVerified={isVerified} verifiedColor={verifiedColor} className="h-4 w-4" />}
+                 <VerifiedBadge isVerified={isVerified} verifiedColor={verifiedColor} className="h-4 w-4" />
                  <Dot />
                  <p className="font-semibold text-sm">{timestamp}</p>
             </div>
@@ -88,5 +88,3 @@ export function TikTokPreview({
     </div>
   );
 }
-
-    

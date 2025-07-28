@@ -70,7 +70,7 @@ export default function Home() {
   }, []);
   
   // Other UI State
-  const [platform, setPlatform] = useState<SocialPlatform>('tiktok');
+  const [platform, setPlatform] = useState<SocialPlatform>('instagram');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [isDownloading, setIsDownloading] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -128,7 +128,7 @@ export default function Home() {
       let result: any;
       // Reading state directly inside the transition ensures we get the latest value
       // without needing it to be a dependency of useCallback.
-      const currentState = editorState; 
+      const currentState = { ...editorState, platform };
       try {
         switch (type) {
           case 'postContent':
@@ -196,7 +196,7 @@ export default function Home() {
         setIsGenerating(prev => prev.filter(item => item !== type));
       }
     });
-  }, [platform, toast, updateEditorState, editorState]);
+  }, [platform, toast, updateEditorState]);
 
 
   const handleLike = () => {
@@ -255,7 +255,7 @@ export default function Home() {
     if (savedTemplate) {
       try {
         const template = JSON.parse(savedTemplate);
-        setEditorState(prevState => ({ ...prevState, ...template }));
+        updateEditorState(template);
         toast({
             title: 'Modelo Carregado!',
             description: 'As configurações salvas foram aplicadas.',
@@ -337,8 +337,8 @@ export default function Home() {
                         Selecione a plataforma e modifique os detalhes.
                         </CardDescription>
                     </div>
-                     <Button onClick={() => handleGenerate('random')} disabled={isGenerating.includes('random') || isPending} size="icon" variant="outline" aria-label="Surpreenda-me">
-                        {isGenerating.includes('random') ? <Loader2 className="h-5 w-5 animate-spin" /> : <WandSparkles className="h-5 w-5 text-accent" />}
+                     <Button onClick={() => handleGenerate('random')} disabled={isGenerating.includes('random') || isPending} size="icon" aria-label="Surpreenda-me" className="bg-accent hover:bg-accent/90">
+                        {isGenerating.includes('random') ? <Loader2 className="h-5 w-5 animate-spin" /> : <WandSparkles className="h-5 w-5 text-accent-foreground" />}
                     </Button>
                 </CardHeader>
                 <CardContent>
