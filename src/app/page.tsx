@@ -584,14 +584,14 @@ export default function Home() {
           </div>
         </main>
         
-        <footer className="text-center mt-12 py-4 border-t border-border">
-          <p className="text-sm text-muted-foreground">
-            Desenvolvido por{' '}
+        <footer className="text-center mt-16 py-6 border-t border-border/50">
+          <p className="text-sm text-muted-foreground flex items-center justify-center gap-1.5">
+            Feito com <Heart className="w-4 h-4 text-red-500 fill-current" /> por
             <a
               href="https://www.instagram.com/djjadsonreis"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-bold text-foreground hover:text-primary transition-colors"
+              className="font-semibold text-foreground underline-offset-4 hover:underline hover:text-primary transition-colors"
             >
               Jadson Reis
             </a>
