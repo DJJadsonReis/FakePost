@@ -73,6 +73,7 @@ export default function Home() {
   const [timestamp, setTimestamp] = useState('2h');
   const [comments, setComments] = useState<string[]>([]);
   const [isVerified, setIsVerified] = useState(true);
+  const [verifiedColor, setVerifiedColor] = useState('#1DA1F2');
   const [platform, setPlatform] = useState<SocialPlatform>('facebook');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
@@ -175,6 +176,12 @@ export default function Home() {
         <Switch id="verified-switch" checked={isVerified} onCheckedChange={setIsVerified} />
         <Label htmlFor="verified-switch" className="flex items-center gap-2"><BadgeCheck className="w-4 h-4" /> Verificado</Label>
       </div>
+       <div className="space-y-2">
+          <Label htmlFor="verified-color" className="flex items-center gap-2"><BadgeCheck className="w-4 h-4" /> Cor do Selo de Verificado</Label>
+          <div className="relative">
+            <Input id="verified-color" type="color" value={verifiedColor} onChange={(e) => setVerifiedColor(e.target.value)} className="p-1 h-10 w-full" />
+          </div>
+        </div>
       <div className="space-y-2">
         <Label htmlFor="profile-pic" className="flex items-center gap-2"><User className="w-4 h-4" /> URL da Foto de Perfil</Label>
         <Input id="profile-pic" value={profilePic} onChange={(e) => setProfilePic(e.target.value)} />
@@ -213,7 +220,7 @@ export default function Home() {
   );
   
   const VerifiedBadge = ({className}: {className?: string}) => (
-    <BadgeCheck className={cn("fill-blue-500 text-white", className)} />
+    <BadgeCheck className={cn("text-white", className)} style={{ fill: verifiedColor }}/>
   );
 
   const renderFacebookPreview = () => (
