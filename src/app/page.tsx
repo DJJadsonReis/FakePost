@@ -536,8 +536,8 @@ export default function Home() {
     isVerified,
     verifiedColor,
     likes,
-    shares,
     reposts,
+    shares,
     recommendations,
     comments,
     isLiked,
@@ -689,5 +689,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
