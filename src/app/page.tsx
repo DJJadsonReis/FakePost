@@ -51,7 +51,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GenerateRealisticCommentsOutput } from '@/ai/flows/generate-comments';
 
-type Comment = GenerateRealisticCommentsOutput['comments'][0];
+type Comment = GenerateRealisticCommentsOutput['comments'][0] & { profilePicUrl?: string };
 
 type SocialPlatform = 'facebook' | 'instagram' | 'twitter' | 'threads' | 'bluesky' | 'linkedin';
 
@@ -121,7 +121,21 @@ export default function Home() {
         setComments(result.comments);
         toast({
           title: 'Sucesso!',
-          description: 'Novos comentários foram gerados.',
+          description: 'Novos comentários foram gerados. Gerando fotos de perfil...',
+        });
+
+        // Generate profile pictures for each comment
+        result.comments.forEach((comment, index) => {
+          startProfilePicTransition(async () => {
+            const picResult = await getAIGeneratedProfilePic(comment.profilePicHint);
+            if (picResult.imageUrl) {
+              setComments(prevComments => {
+                const newComments = [...prevComments];
+                newComments[index].profilePicUrl = picResult.imageUrl;
+                return newComments;
+              });
+            }
+          });
         });
       }
     });
@@ -324,7 +338,7 @@ export default function Home() {
             return (
               <div key={index} className="flex items-start gap-2.5">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={`https://placehold.co/40x40.png`} alt={comment.name} data-ai-hint={comment.profilePicHint} />
+                   <AvatarImage src={comment.profilePicUrl || 'https://placehold.co/40x40.png'} alt={comment.name} data-ai-hint={comment.profilePicHint} />
                   <AvatarFallback>{comment.name.substring(0,1)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
