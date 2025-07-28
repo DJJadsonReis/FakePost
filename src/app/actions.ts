@@ -1,6 +1,7 @@
 'use server';
 
 import { GenerateRealisticCommentsOutput, generateRealisticComments } from '@/ai/flows/generate-comments';
+import { generatePostContent } from '@/ai/flows/generate-post-content';
 import { generateProfilePic } from '@/ai/flows/generate-profile-pic';
 
 export async function getAIGeneratedComments(
@@ -43,4 +44,20 @@ export async function getAIGeneratedProfilePic(
         console.error('Error generating profile picture:', error);
         return { error: 'Ocorreu um erro inesperado ao gerar a imagem. Por favor, tente novamente mais tarde.' };
     }
+}
+
+export async function getAIGeneratedPostContent(
+  topic: string
+): Promise<{ postContent?: string; error?: string }> {
+  if (!topic) {
+    return { error: 'O tópico não pode estar vazio.' };
+  }
+
+  try {
+    const result = await generatePostContent({ topic });
+    return { postContent: result.postContent };
+  } catch (error) {
+    console.error('Error generating post content:', error);
+    return { error: 'Ocorreu um erro inesperado ao gerar o conteúdo. Por favor, tente novamente mais tarde.' };
+  }
 }

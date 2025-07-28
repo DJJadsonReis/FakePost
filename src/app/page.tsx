@@ -43,9 +43,10 @@ import {
   Linkedin,
   Sparkles,
   Music,
+  FileText,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { getAIGeneratedComments, getAIGeneratedProfilePic } from './actions';
+import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedProfilePic } from './actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
@@ -59,6 +60,8 @@ type SocialPlatform = 'facebook' | 'instagram' | 'twitter' | 'threads' | 'bluesk
 export default function Home() {
   const [isPending, startTransition] = useTransition();
   const [isGeneratingProfilePic, startProfilePicTransition] = useTransition();
+  const [isGeneratingPost, startPostGenerationTransition] = useTransition();
+
   const { toast } = useToast();
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -67,6 +70,7 @@ export default function Home() {
   const [username, setUsername] = useState('@mariasilva');
   const [profilePic, setProfilePic] = useState('https://placehold.co/48x48.png');
   const [profilePicPrompt, setProfilePicPrompt] = useState('mulher sorrindo');
+  const [postTopic, setPostTopic] = useState('um lindo dia no parque');
   const [postContent, setPostContent] = useState(
     "Aproveitando um lindo dia no parque! É incrível como um pouco de sol pode mudar todo o seu humor. ☀️ #abençoada #amantedanatureza #boasvibrações"
   );
@@ -161,6 +165,25 @@ export default function Home() {
     });
   };
 
+  const handleGeneratePostContent = () => {
+    startPostGenerationTransition(async () => {
+      const result = await getAIGeneratedPostContent(postTopic);
+      if (result.error) {
+        toast({
+          variant: 'destructive',
+          title: 'Erro',
+          description: result.error,
+        });
+      } else if (result.postContent) {
+        setPostContent(result.postContent);
+        toast({
+          title: 'Sucesso!',
+          description: 'Novo conteúdo de post foi gerado.',
+        });
+      }
+    });
+  };
+
   const handleLike = () => {
     setIsLiked(!isLiked);
     setLikes(l => isLiked ? l -1 : l + 1);
@@ -230,9 +253,18 @@ export default function Home() {
           </Button>
         </div>
       </div>
+       <div className="space-y-2">
+        <Label htmlFor="post-topic" className="flex items-center gap-2"><FileText className="w-4 h-4" /> Tópico para o Post (IA)</Label>
+        <Input id="post-topic" value={postTopic} onChange={(e) => setPostTopic(e.target.value)} placeholder="Sobre o que deve ser o post?"/>
+      </div>
       <div className="space-y-2">
         <Label htmlFor="post-content" className="flex items-center gap-2"><MessageCircle className="w-4 h-4" /> Conteúdo do Post</Label>
-        <Textarea id="post-content" value={postContent} onChange={(e) => setPostContent(e.target.value)} rows={5} />
+        <div className="flex items-start gap-2">
+            <Textarea id="post-content" value={postContent} onChange={(e) => setPostContent(e.target.value)} rows={5} className="flex-1"/>
+             <Button variant="outline" size="icon" onClick={handleGeneratePostContent} disabled={isGeneratingPost} aria-label="Gerar conteúdo do post" className="h-auto">
+                {isGeneratingPost ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            </Button>
+        </div>
       </div>
       <div className="space-y-2">
         <Label htmlFor="post-image" className="flex items-center gap-2"><ImageIcon className="w-4 h-4" /> URL da Imagem do Post</Label>
