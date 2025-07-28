@@ -30,6 +30,7 @@ import { TikTokPreview } from '@/components/previews/tiktok-preview';
 import { FakebookPreview } from '@/components/previews/fakebook-preview';
 import { PostEditor } from '@/components/post-editor';
 import { Separator } from '@/components/ui/separator';
+import { AdUnit } from '@/components/ad-unit';
 
 export type Comment = CommentType & { profilePicUrl?: string; replies?: ReplyWithPic[] };
 export type ReplyWithPic = Reply & { profilePicUrl?: string };
@@ -362,12 +363,19 @@ export default function Home() {
                     />
                 </CardContent>
             </Card>
+             <div className="mt-6">
+              <AdUnit
+                adClient="ca-pub-8835681109829039"
+                adSlot="9708751820"
+                adFormat="auto"
+              />
+            </div>
           </div>
 
           {/* Preview Column */}
           <div className="md:col-span-3">
             <div className="flex flex-col items-center gap-4">
-              <div className="w-full border rounded-lg p-2 bg-muted/50">
+               <div className="w-full border rounded-lg p-2 bg-muted/50">
                 <div
                   ref={previewRef}
                   className="w-full rounded-lg flex justify-center"
@@ -394,6 +402,13 @@ export default function Home() {
         </main>
         
         <footer className="text-center mt-16 py-6 border-t border-border/50">
+            <div className="mb-6">
+                <AdUnit
+                    adClient="ca-pub-8835681109829039"
+                    adSlot="4681670325"
+                    adFormat="auto"
+                />
+            </div>
            <p className="text-sm text-muted-foreground flex items-center justify-center gap-1.5">
             Feito com <Heart className="w-4 h-4 text-primary fill-current" /> por
             <a
