@@ -40,6 +40,7 @@ import {
   Moon,
   Download,
   X,
+  Linkedin,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { getAIGeneratedComments } from './actions';
@@ -56,7 +57,7 @@ const fakeCommenters = [
   { name: 'David Miller', pic: 'https://placehold.co/40x40.png' , hint: 'profile avatar'},
 ];
 
-type SocialPlatform = 'facebook' | 'instagram' | 'twitter' | 'threads' | 'bluesky';
+type SocialPlatform = 'facebook' | 'instagram' | 'twitter' | 'threads' | 'bluesky' | 'linkedin';
 
 export default function Home() {
   const [isPending, startTransition] = useTransition();
@@ -105,6 +106,7 @@ export default function Home() {
   const [likes, setLikes] = useState(128);
   const [reposts, setReposts] = useState(42);
   const [shares, setShares] = useState(23);
+  const [recommendations, setRecommendations] = useState(78);
   const [isLiked, setIsLiked] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -221,6 +223,12 @@ export default function Home() {
               <Label htmlFor="reposts" className="flex items-center gap-2"><Repeat className="w-4 h-4" /> Reposts</Label>
               <Input id="reposts" type="number" value={reposts} onChange={(e) => setReposts(Number(e.target.value))} />
             </div>
+        )}
+        {platform === 'linkedin' && (
+          <div className="space-y-2">
+            <Label htmlFor="recommendations" className="flex items-center gap-2"><Repeat className="w-4 h-4" /> Recomendações</Label>
+            <Input id="recommendations" type="number" value={recommendations} onChange={(e) => setRecommendations(Number(e.target.value))} />
+          </div>
         )}
       </div>
     </>
@@ -500,6 +508,65 @@ export default function Home() {
     </Card>
   );
 
+  const renderLinkedInPreview = () => (
+    <Card className="w-full max-w-xl shadow-lg font-sans bg-card text-card-foreground">
+        <CardHeader className="flex flex-row items-center gap-3 p-4">
+            <Avatar className="h-14 w-14">
+                <AvatarImage src={profilePic} alt={profileName} data-ai-hint="profile avatar" />
+                <AvatarFallback>{profileName.substring(0, 2)}</AvatarFallback>
+            </Avatar>
+            <div className="grid gap-0.5">
+                <div className="flex items-center gap-1">
+                    <p className="font-bold">{profileName}</p>
+                    <VerifiedBadge className="h-4 w-4" />
+                </div>
+                <p className="text-sm text-muted-foreground">Engenheiro de Software | IA & Desenvolvimento Web</p>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <span>{timestamp}</span>
+                    <Dot/>
+                    <Globe className="h-3 w-3" />
+                </div>
+            </div>
+            <MoreHorizontal className="ml-auto h-5 w-5 text-muted-foreground" />
+        </CardHeader>
+        <CardContent className="px-4 pb-2 text-sm">
+            <p className="whitespace-pre-wrap">{postContent}</p>
+        </CardContent>
+        {postImage && (
+            <CardContent className="p-0">
+                <Image src={postImage} alt="Post image" width={558} height={350} className="w-full h-auto object-cover" data-ai-hint="social media post"/>
+            </CardContent>
+        )}
+        <CardFooter className="flex flex-col items-start p-2">
+            <div className="flex justify-between w-full text-xs text-muted-foreground py-1 px-3">
+                <div className="flex items-center gap-2">
+                    <ThumbsUp className="h-4 w-4 text-gray-500" />
+                    <span>{likes.toLocaleString()}</span>
+                </div>
+                <div className="flex gap-4">
+                    <span>{comments.length} comentários</span>
+                    <span>{recommendations.toLocaleString()} recomendações</span>
+                </div>
+            </div>
+            <Separator className="my-1 bg-border/50" />
+            <div className="grid grid-cols-4 w-full gap-1">
+                <Button variant="ghost" className="text-muted-foreground font-semibold text-sm" onClick={handleLike}>
+                    <ThumbsUp className={cn("mr-2 h-5 w-5", isLiked && "text-blue-600")} /> Gostei
+                </Button>
+                <Button variant="ghost" className="text-muted-foreground font-semibold text-sm">
+                    <MessageCircle className="mr-2 h-5 w-5" /> Comentar
+                </Button>
+                <Button variant="ghost" className="text-muted-foreground font-semibold text-sm">
+                    <Repeat className="mr-2 h-5 w-5" /> Recomendar
+                </Button>
+                <Button variant="ghost" className="text-muted-foreground font-semibold text-sm">
+                    <Send className="mr-2 h-5 w-5" /> Enviar
+                </Button>
+            </div>
+        </CardFooter>
+    </Card>
+);
+
 
   const renderPreview = () => {
     switch (platform) {
@@ -508,6 +575,7 @@ export default function Home() {
       case 'twitter': return renderTwitterPreview();
       case 'threads': return renderThreadsPreview();
       case 'bluesky': return renderBlueSkyPreview();
+      case 'linkedin': return renderLinkedInPreview();
       default: return null;
     }
   }
@@ -553,12 +621,13 @@ export default function Home() {
               </CardHeader>
               <CardContent className="space-y-6">
                 <Tabs value={platform} onValueChange={(value) => setPlatform(value as SocialPlatform)} className="w-full">
-                  <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 h-auto">
+                  <TabsList className="grid w-full grid-cols-3 md:grid-cols-3 h-auto">
                     <TabsTrigger value="facebook">Facebook</TabsTrigger>
                     <TabsTrigger value="instagram">Instagram</TabsTrigger>
                     <TabsTrigger value="twitter">Twitter</TabsTrigger>
                     <TabsTrigger value="threads">Threads</TabsTrigger>
                     <TabsTrigger value="bluesky">Blue Sky</TabsTrigger>
+                    <TabsTrigger value="linkedin">LinkedIn</TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="facebook" className="mt-6 space-y-6">{commonEditorFields}</TabsContent>
@@ -566,6 +635,7 @@ export default function Home() {
                   <TabsContent value="twitter" className="mt-6 space-y-6">{commonEditorFields}</TabsContent>
                   <TabsContent value="threads" className="mt-6 space-y-6">{commonEditorFields}</TabsContent>
                   <TabsContent value="bluesky" className="mt-6 space-y-6">{commonEditorFields}</TabsContent>
+                  <TabsContent value="linkedin" className="mt-6 space-y-6">{commonEditorFields}</TabsContent>
                 </Tabs>
               </CardContent>
               <CardFooter>
