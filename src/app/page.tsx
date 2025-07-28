@@ -194,14 +194,13 @@ export default function Home() {
       <div className="space-y-2">
         <Label htmlFor="post-image" className="flex items-center gap-2"><ImageIcon className="w-4 h-4" /> URL da Imagem do Post</Label>
         <div className="flex items-center gap-2">
-          <Input id="post-image" value={postImage} onChange={(e) => setPostImage(e.target.value)} />
+          <Input id="post-image" value={postImage} onChange={(e) => setPostImage(e.target.value)} placeholder="Deixe em branco para não ter imagem"/>
           {postImage && (
             <Button variant="ghost" size="icon" onClick={() => setPostImage('')} aria-label="Remover imagem" className="h-9 w-9">
               <X className="h-4 w-4" />
             </Button>
           )}
         </div>
-        <p className="text-xs text-muted-foreground">Deixe em branco para não ter imagem.</p>
       </div>
       <div className="space-y-2">
         <Label htmlFor="timestamp" className="flex items-center gap-2"><Clock className="w-4 h-4" /> Data e Hora</Label>
@@ -449,7 +448,7 @@ export default function Home() {
   );
 
   const renderBlueSkyPreview = () => (
-    <Card className="w-full max-w-xl shadow-md transition-all duration-300 hover:shadow-xl font-sans bg-card text-card-foreground rounded-lg">
+    <Card className="w-full max-w-xl shadow-md transition-all duration-300 hover:shadow-xl font-sans bg-card text-card-foreground rounded-none sm:rounded-lg">
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
           <Avatar className="h-12 w-12">
@@ -463,9 +462,12 @@ export default function Home() {
                     <p className="font-bold">{profileName}</p>
                     <VerifiedBadge className="h-5 w-5" />
                   </div>
-                  <p className="text-muted-foreground">{username} · {timestamp}</p>
+                  <p className="text-muted-foreground">{username}</p>
                 </div>
-                <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
+                <div className="flex items-center text-muted-foreground">
+                  <span>{timestamp}</span>
+                  <MoreHorizontal className="h-5 w-5 ml-2" />
+                </div>
             </div>
             <p className="whitespace-pre-wrap mt-2">{postContent}</p>
             {postImage && (
@@ -474,15 +476,15 @@ export default function Home() {
               </div>
             )}
             <div className="flex justify-start gap-8 mt-3 text-muted-foreground">
-              <Button variant="ghost" className="flex items-center gap-2 hover:text-blue-500 px-0">
+               <span className="flex items-center gap-2">
                 <MessageCircle className="h-5 w-5" /> {comments.length}
-              </Button>
-              <Button variant="ghost" className="flex items-center gap-2 hover:text-green-500 px-0">
+              </span>
+              <span className="flex items-center gap-2">
                 <Repeat className="h-5 w-5" /> {reposts}
-              </Button>
-              <Button variant="ghost" className="flex items-center gap-2 hover:text-red-500 px-0" onClick={handleLike}>
+              </span>
+              <button onClick={handleLike} className="flex items-center gap-2 focus:outline-none">
                 <Heart className={cn("h-5 w-5", isLiked && 'fill-red-500 text-red-500')} /> {likes}
-              </Button>
+              </button>
             </div>
           </div>
         </div>
