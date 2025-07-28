@@ -586,7 +586,7 @@ export default function Home() {
         
         <footer className="text-center mt-16 py-6 border-t border-border/50">
           <p className="text-sm text-muted-foreground flex items-center justify-center gap-1.5">
-            Feito com <Heart className="w-4 h-4 text-red-500 fill-current" /> por
+            Feito com <Heart className="w-4 h-4 text-white fill-current" /> por
             <a
               href="https://www.instagram.com/djjadsonreis"
               target="_blank"
