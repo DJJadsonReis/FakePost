@@ -42,6 +42,7 @@ import {
   X,
   Linkedin,
   Sparkles,
+  Music,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { getAIGeneratedComments, getAIGeneratedProfilePic } from './actions';
@@ -53,7 +54,7 @@ import { GenerateRealisticCommentsOutput } from '@/ai/flows/generate-comments';
 
 type Comment = GenerateRealisticCommentsOutput['comments'][0] & { profilePicUrl?: string; replies?: Comment[] };
 
-type SocialPlatform = 'facebook' | 'instagram' | 'twitter' | 'threads' | 'bluesky' | 'linkedin';
+type SocialPlatform = 'facebook' | 'instagram' | 'twitter' | 'threads' | 'bluesky' | 'linkedin' | 'tiktok';
 
 export default function Home() {
   const [isPending, startTransition] = useTransition();
@@ -200,7 +201,7 @@ export default function Home() {
         <Label htmlFor="profile-name" className="flex items-center gap-2"><User className="w-4 h-4" /> Nome do Perfil</Label>
         <Input id="profile-name" value={profileName} onChange={(e) => setProfileName(e.target.value)} />
       </div>
-      {['twitter', 'threads', 'bluesky'].includes(platform) && (
+      {['twitter', 'threads', 'bluesky', 'tiktok'].includes(platform) && (
         <div className="space-y-2">
           <Label htmlFor="username" className="flex items-center gap-2">@ Nome de usuário</Label>
           <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} />
@@ -252,7 +253,7 @@ export default function Home() {
           <Label htmlFor="likes" className="flex items-center gap-2"><Heart className="w-4 h-4" /> Curtidas</Label>
           <Input id="likes" type="number" value={likes} onChange={(e) => setLikes(Number(e.target.value))} />
         </div>
-        {platform === 'facebook' && (
+        {(platform === 'facebook' || platform === 'tiktok') && (
           <div className="space-y-2">
             <Label htmlFor="shares" className="flex items-center gap-2"><Share2 className="w-4 h-4" /> Compartilhamentos</Label>
             <Input id="shares" type="number" value={shares} onChange={(e) => setShares(Number(e.target.value))} />
@@ -628,6 +629,53 @@ export default function Home() {
     </Card>
 );
 
+const renderTikTokPreview = () => (
+    <div className="w-[300px] h-[550px] bg-black rounded-3xl shadow-lg relative overflow-hidden font-sans">
+        {postImage && (
+            <Image src={postImage} alt="TikTok video background" layout="fill" objectFit="cover" className="opacity-70" data-ai-hint="tiktok video"/>
+        )}
+        <div className="absolute top-4 left-4 right-4 flex justify-center text-white">
+            <p className="font-semibold mr-4">Seguindo</p>
+            <p className="font-bold border-b-2 border-white pb-1">Para Você</p>
+        </div>
+        
+        <div className="absolute right-2 bottom-20 flex flex-col items-center space-y-4 text-white">
+            <button onClick={handleLike} className="flex flex-col items-center">
+                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                    <Heart className={cn("h-7 w-7", isLiked ? 'text-red-500 fill-red-500' : 'text-white')} />
+                </div>
+                <span className="text-sm font-semibold mt-1">{likes.toLocaleString()}</span>
+            </button>
+            <button className="flex flex-col items-center">
+                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                    <MessageCircle className="h-7 w-7 text-white" />
+                </div>
+                <span className="text-sm font-semibold mt-1">{comments.length.toLocaleString()}</span>
+            </button>
+            <button className="flex flex-col items-center">
+                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                    <Share2 className="h-7 w-7 text-white" />
+                </div>
+                <span className="text-sm font-semibold mt-1">{shares.toLocaleString()}</span>
+            </button>
+        </div>
+
+        <div className="absolute bottom-4 left-4 right-4 text-white">
+            <div className="flex items-center gap-2">
+                 <p className="font-bold">{username}</p>
+                 {isVerified && <BadgeCheck className="h-4 w-4" style={{ fill: verifiedColor, color: 'white' }} />}
+                 <Dot />
+                 <p className="font-semibold text-sm">{timestamp}</p>
+            </div>
+            <p className="whitespace-pre-wrap mt-2 text-sm">{postContent}</p>
+             <div className="flex items-center gap-2 mt-2">
+                <Music className="h-4 w-4" />
+                <p className="text-sm font-medium truncate">som original - {profileName}</p>
+            </div>
+        </div>
+    </div>
+);
+
 
   const renderPreview = () => {
     switch (platform) {
@@ -637,6 +685,7 @@ export default function Home() {
       case 'threads': return renderThreadsPreview();
       case 'bluesky': return renderBlueSkyPreview();
       case 'linkedin': return renderLinkedInPreview();
+      case 'tiktok': return renderTikTokPreview();
       default: return null;
     }
   }
@@ -682,13 +731,14 @@ export default function Home() {
               </CardHeader>
               <CardContent className="space-y-6">
                 <Tabs value={platform} onValueChange={(value) => setPlatform(value as SocialPlatform)} className="w-full">
-                  <TabsList className="grid w-full grid-cols-3 md:grid-cols-3 h-auto">
+                  <TabsList className="grid w-full grid-cols-3 md:grid-cols-4 h-auto">
                     <TabsTrigger value="facebook">Facebook</TabsTrigger>
                     <TabsTrigger value="instagram">Instagram</TabsTrigger>
                     <TabsTrigger value="twitter">Twitter</TabsTrigger>
                     <TabsTrigger value="threads">Threads</TabsTrigger>
                     <TabsTrigger value="bluesky">Blue Sky</TabsTrigger>
                     <TabsTrigger value="linkedin">LinkedIn</TabsTrigger>
+                    <TabsTrigger value="tiktok">TikTok</TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="facebook" className="mt-6 space-y-6">{commonEditorFields}</TabsContent>
@@ -697,6 +747,7 @@ export default function Home() {
                   <TabsContent value="threads" className="mt-6 space-y-6">{commonEditorFields}</TabsContent>
                   <TabsContent value="bluesky" className="mt-6 space-y-6">{commonEditorFields}</TabsContent>
                   <TabsContent value="linkedin" className="mt-6 space-y-6">{commonEditorFields}</TabsContent>
+                  <TabsContent value="tiktok" className="mt-6 space-y-6">{commonEditorFields}</TabsContent>
                 </Tabs>
               </CardContent>
               <CardFooter>
@@ -755,5 +806,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
