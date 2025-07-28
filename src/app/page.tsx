@@ -258,7 +258,7 @@ export default function Home() {
             <Input id="shares" type="number" value={shares} onChange={(e) => setShares(Number(e.target.value))} />
           </div>
         )}
-        {(platform === 'twitter' || platform === 'bluesky' || platform === 'threads') && (
+        {(platform === 'twitter' || platform === 'threads' || platform === 'bluesky') && (
             <div className="space-y-2">
               <Label htmlFor="reposts" className="flex items-center gap-2"><Repeat className="w-4 h-4" /> Reposts</Label>
               <Input id="reposts" type="number" value={reposts} onChange={(e) => setReposts(Number(e.target.value))} />
