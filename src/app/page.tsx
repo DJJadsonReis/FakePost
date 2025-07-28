@@ -49,7 +49,7 @@ import {
   Users,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedProfilePic } from './actions';
+import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedProfilePic, getAIGeneratedPostImage } from './actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
@@ -66,6 +66,7 @@ export default function Home() {
   const [isPending, startTransition] = useTransition();
   const [isGeneratingProfilePic, startProfilePicTransition] = useTransition();
   const [isGeneratingPost, startPostGenerationTransition] = useTransition();
+  const [isGeneratingPostImage, startPostImageGenerationTransition] = useTransition();
 
   const { toast } = useToast();
   const previewRef = useRef<HTMLDivElement>(null);
@@ -80,6 +81,7 @@ export default function Home() {
     "Aproveitando um lindo dia no parque! É incrível como um pouco de sol pode mudar todo o seu humor. ☀️ #abençoada #amantedanatureza #boasvibrações"
   );
   const [postImage, setPostImage] = useState('https://placehold.co/600x400.png');
+  const [postImagePrompt, setPostImagePrompt] = useState('um lindo dia no parque com sol');
   const [timestamp, setTimestamp] = useState('2h');
   const [comments, setComments] = useState<Comment[]>([]);
   const [numberOfComments, setNumberOfComments] = useState(5);
@@ -219,6 +221,26 @@ export default function Home() {
     });
   };
 
+  const handleGeneratePostImage = () => {
+    startPostImageGenerationTransition(async () => {
+      const result = await getAIGeneratedPostImage(postImagePrompt);
+      if (result.error) {
+        toast({
+          variant: 'destructive',
+          title: 'Erro',
+          description: result.error,
+        });
+      } else if (result.imageUrl) {
+        setPostImage(result.imageUrl);
+        toast({
+          title: 'Sucesso!',
+          description: 'Nova imagem de post foi gerada.',
+        });
+      }
+    });
+  };
+
+
   const handleLike = () => {
     setIsLiked(!isLiked);
     setLikes(l => isLiked ? l -1 : l + 1);
@@ -262,6 +284,7 @@ export default function Home() {
       postTopic,
       postContent,
       postImage,
+      postImagePrompt,
       timestamp,
       isVerified,
       verifiedColor,
@@ -288,6 +311,7 @@ export default function Home() {
       setPostTopic(template.postTopic || 'um lindo dia no parque');
       setPostContent(template.postContent || "Aproveitando um lindo dia no parque! É incrível como um pouco de sol pode mudar todo o seu humor. ☀️ #abençoada #amantedanatureza #boasvibrações");
       setPostImage(template.postImage || 'https://placehold.co/600x400.png');
+      setPostImagePrompt(template.postImagePrompt || 'um lindo dia no parque com sol');
       setTimestamp(template.timestamp || '2h');
       setIsVerified(template.isVerified !== undefined ? template.isVerified : true);
       setVerifiedColor(template.verifiedColor || '#1DA1F2');
@@ -365,7 +389,15 @@ export default function Home() {
             <X className="h-4 w-4" />
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground">Deixe em branco para não ter imagem.</p>
+      </div>
+       <div className="space-y-2">
+        <Label htmlFor="post-image-prompt" className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> Gerar Imagem do Post com IA</Label>
+        <div className="flex items-center gap-2">
+          <Input id="post-image-prompt" value={postImagePrompt} onChange={(e) => setPostImagePrompt(e.target.value)} placeholder="Ex: um gato em um telhado"/>
+          <Button variant="outline" size="icon" onClick={handleGeneratePostImage} disabled={isGeneratingPostImage} aria-label="Gerar imagem do post com IA">
+            {isGeneratingPostImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+          </Button>
+        </div>
       </div>
       <div className="space-y-2">
         <Label htmlFor="timestamp" className="flex items-center gap-2"><Clock className="w-4 h-4" /> Data e Hora</Label>

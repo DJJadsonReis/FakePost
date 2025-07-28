@@ -2,6 +2,7 @@
 
 import { GenerateRealisticCommentsOutput, generateRealisticComments } from '@/ai/flows/generate-comments';
 import { generatePostContent } from '@/ai/flows/generate-post-content';
+import { generatePostImage } from '@/ai/flows/generate-post-image';
 import { generateProfilePic } from '@/ai/flows/generate-profile-pic';
 
 export async function getAIGeneratedComments(
@@ -64,4 +65,20 @@ export async function getAIGeneratedPostContent(
     console.error('Error generating post content:', error);
     return { error: 'Ocorreu um erro inesperado ao gerar o conteúdo. Por favor, tente novamente mais tarde.' };
   }
+}
+
+export async function getAIGeneratedPostImage(
+  prompt: string
+): Promise<{ imageUrl?: string; error?: string }> {
+    if (!prompt) {
+        return { error: 'A descrição da imagem não pode estar vazia.' };
+    }
+
+    try {
+        const result = await generatePostImage({ prompt });
+        return { imageUrl: result.imageUrl };
+    } catch (error) {
+        console.error('Error generating post image:', error);
+        return { error: 'Ocorreu um erro inesperado ao gerar a imagem. Por favor, tente novamente mais tarde.' };
+    }
 }
