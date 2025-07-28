@@ -14,7 +14,7 @@ import {
   Heart,
   WandSparkles,
 } from 'lucide-react';
-import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedPostMedia, getAIGeneratedPostAudio, getAIGeneratedRandomPost } from './actions';
+import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedPostMedia, getAIGeneratedPostAudio, getAIGeneratedRandomPost, getAIGeneratedProfilePic } from './actions';
 import { useToast } from '@/hooks/use-toast';
 
 import type { Comment as CommentType, Reply } from '@/ai/flows/generate-comments';
@@ -151,7 +151,7 @@ export default function Home() {
             if (result.postContent) setPostContent(result.postContent);
             break;
           case 'profilePic':
-            result = await getAIGeneratedPostMedia(profilePicPrompt, 'instagram'); // Use instagram to force image
+            result = await getAIGeneratedProfilePic(profilePicPrompt);
             if (result.imageUrl) setProfilePic(result.imageUrl);
             break;
           case 'postMedia':
@@ -313,7 +313,7 @@ export default function Home() {
     username,
     profilePic,
     postContent,
-    postImage: postVideo ? '' : postImage, // Pass image only if there's no video
+    postImage,
     postVideo,
     postAudio,
     timestamp,
