@@ -235,7 +235,7 @@ export default function Home() {
   );
   
   const VerifiedBadge = ({className}: {className?: string}) => (
-    isVerified && <BadgeCheck className={cn("text-white", className)} style={{ fill: verifiedColor }}/>
+    isVerified && <BadgeCheck className={cn("text-white", className)} style={{ fill: verifiedColor, color: 'white' }}/>
   );
 
   const renderFacebookPreview = () => (
