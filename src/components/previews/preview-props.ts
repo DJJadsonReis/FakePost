@@ -6,6 +6,7 @@ export interface PreviewProps {
   profilePic: string;
   postContent: string;
   postImage: string;
+  postVideo: string;
   postAudio: string;
   timestamp: string;
   isVerified: boolean;

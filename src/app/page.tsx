@@ -43,9 +43,10 @@ import {
   Smile,
   FileImage,
   BarChart,
+  Video,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedProfilePic, getAIGeneratedPostImage, getAIGeneratedPostAudio } from './actions';
+import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedProfilePic, getAIGeneratedPostImage, getAIGeneratedPostAudio, getAIGeneratedPostVideo } from './actions';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -69,7 +70,7 @@ export type SocialPlatform = 'facebook' | 'instagram' | 'twitter' | 'threads' | 
 export default function Home() {
   const [isGenerating, setIsGenerating] = useState({
     postContent: false,
-    postImage: false,
+    postMedia: false, // Unified state for image/video
     postAudio: false,
     profilePic: false,
     comments: false,
@@ -90,7 +91,8 @@ export default function Home() {
     "Aproveitando um lindo dia no parque! É incrível como um pouco de sol pode mudar todo o seu humor. ☀️ #abençoada #amantedanatureza #boasvibrações"
   );
   const [postImage, setPostImage] = useState('https://placehold.co/600x400.png');
-  const [postImagePrompt, setPostImagePrompt] = useState('um lindo dia no parque com sol');
+  const [postVideo, setPostVideo] = useState('');
+  const [postMediaPrompt, setPostMediaPrompt] = useState('um lindo dia no parque com sol');
   const [postAudio, setPostAudio] = useState('');
   const [timestamp, setTimestamp] = useState('2h');
   const [comments, setComments] = useState<Comment[]>([]);
@@ -246,26 +248,31 @@ export default function Home() {
     });
   };
 
-  const handleGeneratePostImage = () => {
-    setIsGenerating(prev => ({ ...prev, postImage: true }));
+  const handleGeneratePostMedia = () => {
+    setIsGenerating(prev => ({ ...prev, postMedia: true }));
     startTransition(async () => {
       try {
-        const result = await getAIGeneratedPostImage(postImagePrompt);
-        if (result.error) {
-          toast({
-            variant: 'destructive',
-            title: 'Erro',
-            description: result.error,
-          });
-        } else if (result.imageUrl) {
-          setPostImage(result.imageUrl);
-          toast({
-            title: 'Sucesso!',
-            description: 'Nova imagem de post foi gerada.',
-          });
+        if (platform === 'tiktok') {
+            const result = await getAIGeneratedPostVideo(postMediaPrompt);
+            if (result.error) {
+                toast({ variant: 'destructive', title: 'Erro na Geração de Vídeo', description: result.error });
+            } else if (result.videoUrl) {
+                setPostVideo(result.videoUrl);
+                setPostImage(''); // Clear image when video is generated
+                toast({ title: 'Sucesso!', description: 'Novo vídeo de post foi gerado.' });
+            }
+        } else {
+            const result = await getAIGeneratedPostImage(postMediaPrompt);
+            if (result.error) {
+                toast({ variant: 'destructive', title: 'Erro na Geração de Imagem', description: result.error });
+            } else if (result.imageUrl) {
+                setPostImage(result.imageUrl);
+                setPostVideo(''); // Clear video when image is generated
+                toast({ title: 'Sucesso!', description: 'Nova imagem de post foi gerada.' });
+            }
         }
       } finally {
-        setIsGenerating(prev => ({ ...prev, postImage: false }));
+        setIsGenerating(prev => ({ ...prev, postMedia: false }));
       }
     });
   };
@@ -338,7 +345,8 @@ export default function Home() {
       postTopic,
       postContent,
       postImage,
-      postImagePrompt,
+      postVideo,
+      postMediaPrompt,
       timestamp,
       isVerified,
       verifiedColor,
@@ -365,7 +373,8 @@ export default function Home() {
       setPostTopic(template.postTopic || 'um lindo dia no parque');
       setPostContent(template.postContent || "Aproveitando um lindo dia no parque! É incrível como um pouco de sol pode mudar todo o seu humor. ☀️ #abençoada #amantedanatureza #boasvibrações");
       setPostImage(template.postImage || 'https://placehold.co/600x400.png');
-      setPostImagePrompt(template.postImagePrompt || 'um lindo dia no parque com sol');
+      setPostVideo(template.postVideo || '');
+      setPostMediaPrompt(template.postMediaPrompt || 'um lindo dia no parque com sol');
       setTimestamp(template.timestamp || '2h');
       setIsVerified(template.isVerified !== undefined ? template.isVerified : true);
       setVerifiedColor(template.verifiedColor || '#1DA1F2');
@@ -465,21 +474,25 @@ export default function Home() {
               )}
             </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="post-image" className="flex items-center gap-2"><FileImage className="w-4 h-4" /> URL da Imagem do Post</Label>
-            <div className="flex items-center gap-2">
-              <Input id="post-image" value={postImage} onChange={(e) => setPostImage(e.target.value)} placeholder="Cole uma URL de imagem aqui"/>
-              <Button variant="ghost" size="icon" onClick={() => setPostImage('')} aria-label="Remover imagem" className="h-9 w-9">
-                <X className="h-4 w-4" />
-              </Button>
+          { platform !== 'tiktok' && (
+            <div className="space-y-2">
+                <Label htmlFor="post-image" className="flex items-center gap-2"><FileImage className="w-4 h-4" /> URL da Imagem do Post</Label>
+                <div className="flex items-center gap-2">
+                <Input id="post-image" value={postImage} onChange={(e) => setPostImage(e.target.value)} placeholder="Cole uma URL de imagem aqui"/>
+                <Button variant="ghost" size="icon" onClick={() => {setPostImage(''); setPostVideo('');}} aria-label="Remover imagem" className="h-9 w-9">
+                    <X className="h-4 w-4" />
+                </Button>
+                </div>
             </div>
-          </div>
+          )}
           <div className="space-y-2">
-            <Label htmlFor="post-image-prompt" className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> Gerar Imagem com IA</Label>
+             <Label htmlFor="post-media-prompt" className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4" /> Gerar {platform === 'tiktok' ? 'Vídeo' : 'Imagem'} com IA
+            </Label>
             <div className="flex items-center gap-2">
-              <Input id="post-image-prompt" value={postImagePrompt} onChange={(e) => setPostImagePrompt(e.target.value)} placeholder="Ex: um gato em um telhado"/>
-              <Button variant="outline" size="icon" onClick={handleGeneratePostImage} disabled={isGenerating.postImage} aria-label="Gerar imagem do post com IA">
-                {isGenerating.postImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              <Input id="post-media-prompt" value={postMediaPrompt} onChange={(e) => setPostMediaPrompt(e.target.value)} placeholder={platform === 'tiktok' ? "Ex: um drone voando sobre uma cidade" : "Ex: um gato em um telhado"}/>
+              <Button variant="outline" size="icon" onClick={handleGeneratePostMedia} disabled={isGenerating.postMedia} aria-label={`Gerar ${platform === 'tiktok' ? 'vídeo' : 'imagem'} com IA`}>
+                {isGenerating.postMedia ? <Loader2 className="h-4 w-4 animate-spin" /> : (platform === 'tiktok' ? <Video className="h-4 w-4" /> : <ImageIcon className="h-4 w-4" />) }
               </Button>
             </div>
           </div>
@@ -530,7 +543,8 @@ export default function Home() {
     username,
     profilePic,
     postContent,
-    postImage,
+    postImage: postVideo ? '' : postImage, // Pass image only if there's no video
+    postVideo,
     postAudio,
     timestamp,
     isVerified,

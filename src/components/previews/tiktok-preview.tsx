@@ -14,7 +14,8 @@ export function TikTokPreview({
   profileName,
   username,
   postContent,
-  postImage,
+  postImage, // Fallback if video doesn't exist
+  postVideo,
   postAudio,
   timestamp,
   isVerified,
@@ -27,7 +28,15 @@ export function TikTokPreview({
 }: PreviewProps) {
   return (
     <div className="w-[300px] h-[550px] bg-black rounded-3xl shadow-lg relative overflow-hidden font-sans">
-        {postImage && (
+        {postVideo ? (
+          <video
+            src={postVideo}
+            autoPlay
+            loop
+            muted // Muted by default for autoplay
+            className="absolute top-0 left-0 w-full h-full object-cover"
+          />
+        ) : postImage && (
             <Image src={postImage} alt="TikTok video background" layout="fill" objectFit="cover" className="opacity-70" data-ai-hint="tiktok video"/>
         )}
         <div className="absolute top-4 left-4 right-4 flex justify-center text-white">
@@ -78,5 +87,3 @@ export function TikTokPreview({
     </div>
   );
 }
-
-    

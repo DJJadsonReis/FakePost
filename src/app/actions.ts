@@ -5,6 +5,7 @@ import { generatePostAudio } from '@/ai/flows/generate-post-audio';
 import { generatePostContent } from '@/ai/flows/generate-post-content';
 import { generatePostImage } from '@/ai/flows/generate-post-image';
 import { generateProfilePic } from '@/ai/flows/generate-profile-pic';
+import { generatePostVideo } from '@/ai/flows/generate-post-video';
 
 export async function getAIGeneratedComments(
   postContent: string,
@@ -83,6 +84,23 @@ export async function getAIGeneratedPostImage(
         return { error: 'Ocorreu um erro inesperado ao gerar a imagem. Por favor, tente novamente mais tarde.' };
     }
 }
+
+export async function getAIGeneratedPostVideo(
+  prompt: string
+): Promise<{ videoUrl?: string; error?: string }> {
+    if (!prompt) {
+        return { error: 'A descrição do vídeo não pode estar vazia.' };
+    }
+
+    try {
+        const result = await generatePostVideo({ prompt });
+        return { videoUrl: result.videoUrl };
+    } catch (error) {
+        console.error('Error generating post video:', error);
+        return { error: 'Ocorreu um erro inesperado ao gerar o vídeo. Por favor, tente novamente mais tarde.' };
+    }
+}
+
 
 export async function getAIGeneratedPostAudio(
   text: string
