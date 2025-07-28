@@ -46,10 +46,8 @@ interface PostEditorProps {
     isGenerating: GenerationType[];
     isPending: boolean;
     handleGenerate: (type: GenerationType) => void;
-    handleSaveTemplate: () => void;
-    handleLoadTemplate: () => void;
     editorState: any;
-    setEditorState: any;
+    setEditorState: (updates: any) => void;
 }
 
 export function PostEditor({
@@ -58,11 +56,22 @@ export function PostEditor({
     isGenerating,
     isPending,
     handleGenerate,
-    handleSaveTemplate,
-    handleLoadTemplate,
     editorState,
     setEditorState
 }: PostEditorProps) {
+
+    const handleInputChange = (field: string, value: any) => {
+        setEditorState({ [field]: value });
+    };
+
+    const handleNumberInputChange = (field: string, value: string) => {
+        const num = Number(value);
+        if (!isNaN(num)) {
+            setEditorState({ [field]: num });
+        }
+    };
+
+
     const editorContent = (
     <Accordion type="multiple" defaultValue={['profile', 'content']} className="w-full">
       <EditorSection
@@ -74,32 +83,32 @@ export function PostEditor({
         <div className="space-y-4 p-1">
           <div className="space-y-2">
             <Label htmlFor="profile-name">Nome do Perfil</Label>
-            <Input id="profile-name" value={editorState.profileName} onChange={(e) => setEditorState.setProfileName(e.target.value)} />
+            <Input id="profile-name" value={editorState.profileName} onChange={(e) => handleInputChange('profileName', e.target.value)} />
           </div>
           {['twitter', 'threads', 'bluesky', 'tiktok', 'instagram'].includes(platform) && (
             <div className="space-y-2">
               <Label htmlFor="username">@ Nome de usuário</Label>
-              <Input id="username" value={editorState.username} onChange={(e) => setEditorState.setUsername(e.target.value)} />
+              <Input id="username" value={editorState.username} onChange={(e) => handleInputChange('username', e.target.value)} />
             </div>
           )}
            <div className="flex items-center space-x-2 pt-2">
-                <Switch id="verified-switch" checked={editorState.isVerified} onCheckedChange={setEditorState.setIsVerified} />
+                <Switch id="verified-switch" checked={editorState.isVerified} onCheckedChange={(checked) => handleInputChange('isVerified', checked)} />
                 <Label htmlFor="verified-switch">Verificado</Label>
             </div>
             {editorState.isVerified && (
                 <div className="space-y-2">
                 <Label htmlFor="verified-color">Cor do Selo</Label>
-                <Input id="verified-color" type="color" value={editorState.verifiedColor} onChange={(e) => setEditorState.setVerifiedColor(e.target.value)} className="p-1 h-10 w-full" />
+                <Input id="verified-color" type="color" value={editorState.verifiedColor} onChange={(e) => handleInputChange('verifiedColor', e.target.value)} className="p-1 h-10 w-full" />
                 </div>
             )}
            <div className="space-y-2">
             <Label htmlFor="profile-pic">URL da Foto de Perfil</Label>
-            <Input id="profile-pic" value={editorState.profilePic} onChange={(e) => setEditorState.setProfilePic(e.target.value)} placeholder="Cole uma URL ou gere com IA"/>
+            <Input id="profile-pic" value={editorState.profilePic} onChange={(e) => handleInputChange('profilePic', e.target.value)} placeholder="Cole uma URL ou gere com IA"/>
           </div>
           <div className="space-y-2">
             <Label htmlFor="profile-pic-prompt">Gerar Foto com IA</Label>
             <div className="flex items-center gap-2">
-              <Input id="profile-pic-prompt" value={editorState.profilePicPrompt} onChange={(e) => setEditorState.setProfilePicPrompt(e.target.value)} placeholder="Ex: homem sorrindo"/>
+              <Input id="profile-pic-prompt" value={editorState.profilePicPrompt} onChange={(e) => handleInputChange('profilePicPrompt', e.target.value)} placeholder="Ex: homem sorrindo"/>
               <Button variant="outline" size="icon" onClick={() => handleGenerate('profilePic')} disabled={isGenerating.includes('profilePic') || isPending} aria-label="Gerar foto com IA">
                 {isGenerating.includes('profilePic') ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 text-accent" />}
               </Button>
@@ -116,12 +125,12 @@ export function PostEditor({
         <div className="space-y-4 p-1">
           <div className="space-y-2">
             <Label htmlFor="post-topic">Tópico para o Post (IA)</Label>
-            <Input id="post-topic" value={editorState.postTopic} onChange={(e) => setEditorState.setPostTopic(e.target.value)} placeholder="Sobre o que deve ser o post?"/>
+            <Input id="post-topic" value={editorState.postTopic} onChange={(e) => handleInputChange('postTopic', e.target.value)} placeholder="Sobre o que deve ser o post?"/>
           </div>
           <div className="space-y-2">
             <Label htmlFor="post-content">Conteúdo do Post</Label>
             <div className="flex items-start gap-2">
-                <Textarea id="post-content" value={editorState.postContent} onChange={(e) => setEditorState.setPostContent(e.target.value)} rows={5} className="flex-1"/>
+                <Textarea id="post-content" value={editorState.postContent} onChange={(e) => handleInputChange('postContent', e.target.value)} rows={5} className="flex-1"/>
                 <Button variant="outline" size="icon" onClick={() => handleGenerate('postContent')} disabled={isGenerating.includes('postContent') || isPending} aria-label="Gerar conteúdo do post" className="h-auto aspect-square">
                     {isGenerating.includes('postContent') ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 text-accent" />}
                 </Button>
@@ -135,7 +144,7 @@ export function PostEditor({
                 Gerar Áudio com IA
               </Button>
               {editorState.postAudio && (
-                <Button variant="ghost" size="icon" onClick={() => setEditorState.setPostAudio('')} aria-label="Remover áudio">
+                <Button variant="ghost" size="icon" onClick={() => handleInputChange('postAudio', '')} aria-label="Remover áudio">
                     <X className="h-4 w-4" />
                 </Button>
               )}
@@ -145,8 +154,8 @@ export function PostEditor({
             <div className="space-y-2">
                 <Label htmlFor="post-image">URL da Imagem do Post</Label>
                 <div className="flex items-center gap-2">
-                <Input id="post-image" value={editorState.postImage} onChange={(e) => setEditorState.setPostImage(e.target.value)} placeholder="Cole uma URL de imagem aqui"/>
-                <Button variant="ghost" size="icon" onClick={() => {setEditorState.setPostImage(''); setEditorState.setPostVideo('');}} aria-label="Remover imagem" className="h-9 w-9">
+                <Input id="post-image" value={editorState.postImage} onChange={(e) => handleInputChange('postImage', e.target.value)} placeholder="Cole uma URL de imagem aqui"/>
+                <Button variant="ghost" size="icon" onClick={() => setEditorState({ postImage: '', postVideo: '' })} aria-label="Remover imagem" className="h-9 w-9">
                     <X className="h-4 w-4" />
                 </Button>
                 </div>
@@ -157,7 +166,7 @@ export function PostEditor({
               Gerar {platform === 'tiktok' ? 'Vídeo' : 'Imagem'} com IA
             </Label>
             <div className="flex items-center gap-2">
-              <Input id="post-media-prompt" value={editorState.postMediaPrompt} onChange={(e) => setEditorState.setPostMediaPrompt(e.target.value)} placeholder={platform === 'tiktok' ? "Ex: um drone voando sobre uma cidade" : "Ex: um gato em um telhado"}/>
+              <Input id="post-media-prompt" value={editorState.postMediaPrompt} onChange={(e) => handleInputChange('postMediaPrompt', e.target.value)} placeholder={platform === 'tiktok' ? "Ex: um drone voando sobre uma cidade" : "Ex: um gato em um telhado"}/>
               <Button variant="outline" size="icon" onClick={() => handleGenerate('postMedia')} disabled={isGenerating.includes('postMedia') || isPending} aria-label={`Gerar ${platform === 'tiktok' ? 'vídeo' : 'imagem'} com IA`}>
                 {isGenerating.includes('postMedia') ? <Loader2 className="h-4 w-4 animate-spin" /> : (platform === 'tiktok' ? <Video className="h-4 w-4 text-accent" /> : <ImageIcon className="h-4 w-4 text-accent" />) }
               </Button>
@@ -174,29 +183,29 @@ export function PostEditor({
         <div className="space-y-4 p-1">
             <div className="space-y-2">
               <Label htmlFor="timestamp">Data e Hora</Label>
-              <Input id="timestamp" value={editorState.timestamp} onChange={(e) => setEditorState.setTimestamp(e.target.value)} />
+              <Input id="timestamp" value={editorState.timestamp} onChange={(e) => handleInputChange('timestamp', e.target.value)} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="likes">Curtidas</Label>
-                <Input id="likes" type="number" value={editorState.likes} onChange={(e) => setEditorState.setLikes(Number(e.target.value))} />
+                <Input id="likes" type="number" value={editorState.likes} onChange={(e) => handleNumberInputChange('likes', e.target.value)} />
               </div>
               {(platform === 'facebook' || platform === 'tiktok') && (
                 <div className="space-y-2">
                   <Label htmlFor="shares">Compartilhamentos</Label>
-                  <Input id="shares" type="number" value={editorState.shares} onChange={(e) => setEditorState.setShares(Number(e.target.value))} />
+                  <Input id="shares" type="number" value={editorState.shares} onChange={(e) => handleNumberInputChange('shares', e.target.value)} />
                 </div>
               )}
               {(platform === 'twitter' || platform === 'threads' || platform === 'bluesky') && (
                   <div className="space-y-2">
                     <Label htmlFor="reposts">Reposts</Label>
-                    <Input id="reposts" type="number" value={editorState.reposts} onChange={(e) => setEditorState.setReposts(Number(e.target.value))} />
+                    <Input id="reposts" type="number" value={editorState.reposts} onChange={(e) => handleNumberInputChange('reposts', e.target.value)} />
                   </div>
               )}
               {platform === 'linkedin' && (
                 <div className="space-y-2">
                   <Label htmlFor="recommendations">Recomendações</Label>
-                  <Input id="recommendations" type="number" value={editorState.recommendations} onChange={(e) => setEditorState.setRecommendations(Number(e.target.value))} />
+                  <Input id="recommendations" type="number" value={editorState.recommendations} onChange={(e) => handleNumberInputChange('recommendations', e.target.value)} />
                 </div>
               )}
             </div>
@@ -207,26 +216,15 @@ export function PostEditor({
 
     return (
         <div className="space-y-6">
-            <div className="flex gap-2">
-                <Button onClick={handleSaveTemplate} className="w-full">
-                <Save className="mr-2 h-4 w-4" />
-                Salvar Modelo
-                </Button>
-                <Button onClick={handleLoadTemplate} variant="outline" className="w-full">
-                <FolderOpen className="mr-2 h-4 w-4" />
-                Carregar Modelo
-                </Button>
-            </div>
-            <Separator/>
             <Tabs value={platform} onValueChange={(value) => setPlatform(value as SocialPlatform)} className="w-full">
-                <TabsList className="h-auto">
-                <TabsTrigger value="instagram">Instagram</TabsTrigger>
-                <TabsTrigger value="facebook">Facebook</TabsTrigger>
-                <TabsTrigger value="twitter">Twitter</TabsTrigger>
-                <TabsTrigger value="threads">Threads</TabsTrigger>
-                <TabsTrigger value="bluesky">Blue Sky</TabsTrigger>
-                <TabsTrigger value="linkedin">LinkedIn</TabsTrigger>
-                <TabsTrigger value="tiktok">TikTok</TabsTrigger>
+                <TabsList className="h-auto flex-wrap">
+                    <TabsTrigger value="instagram">Instagram</TabsTrigger>
+                    <TabsTrigger value="facebook">Facebook</TabsTrigger>
+                    <TabsTrigger value="twitter">Twitter</TabsTrigger>
+                    <TabsTrigger value="threads">Threads</TabsTrigger>
+                    <TabsTrigger value="bluesky">Blue Sky</TabsTrigger>
+                    <TabsTrigger value="linkedin">LinkedIn</TabsTrigger>
+                    <TabsTrigger value="tiktok">TikTok</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="facebook" className="mt-6">{editorContent}</TabsContent>
@@ -240,7 +238,7 @@ export function PostEditor({
             <Separator/>
             <div className="space-y-2">
                 <Label htmlFor="numberOfComments" className="flex items-center gap-2"><Users className="mr-2 h-4 w-4" /> Número de Comentários</Label>
-                <Input id="numberOfComments" type="number" value={editorState.numberOfComments} onChange={(e) => setEditorState.setNumberOfComments(Number(e.target.value))} min={1}/>
+                <Input id="numberOfComments" type="number" value={editorState.numberOfComments} onChange={(e) => handleNumberInputChange('numberOfComments', e.target.value)} min={1}/>
             </div>
              <CardFooter className="p-0">
                  <Button onClick={() => handleGenerate('comments')} disabled={isGenerating.includes('comments') || isPending} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
@@ -260,3 +258,4 @@ export function PostEditor({
         </div>
     );
 }
+    

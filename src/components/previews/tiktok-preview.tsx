@@ -14,7 +14,7 @@ export function TikTokPreview({
   profileName,
   username,
   postContent,
-  postImage, // Fallback if video doesn't exist
+  postImage,
   postVideo,
   postAudio,
   timestamp,
@@ -30,6 +30,7 @@ export function TikTokPreview({
     <div className="w-[300px] h-[550px] bg-black rounded-3xl shadow-lg relative overflow-hidden font-sans">
         {postVideo ? (
           <video
+            key={postVideo} // Add key to force re-render when video src changes
             src={postVideo}
             autoPlay
             loop
@@ -87,3 +88,5 @@ export function TikTokPreview({
     </div>
   );
 }
+
+    
