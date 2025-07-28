@@ -48,14 +48,9 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { GenerateRealisticCommentsOutput } from '@/ai/flows/generate-comments';
 
-const fakeCommenters = [
-  { name: 'Joana Silva', pic: 'https://placehold.co/40x40.png' , hint: 'profile avatar'},
-  { name: 'Alex Johnson', pic: 'https://placehold.co/40x40.png' , hint: 'profile avatar'},
-  { name: 'Maria Garcia', pic: 'https://placehold.co/40x40.png' , hint: 'profile avatar'},
-  { name: 'Chen Wei', pic: 'https://placehold.co/40x40.png' , hint: 'profile avatar'},
-  { name: 'David Miller', pic: 'https://placehold.co/40x40.png' , hint: 'profile avatar'},
-];
+type Comment = GenerateRealisticCommentsOutput['comments'][0];
 
 type SocialPlatform = 'facebook' | 'instagram' | 'twitter' | 'threads' | 'bluesky' | 'linkedin';
 
@@ -73,7 +68,7 @@ export default function Home() {
   );
   const [postImage, setPostImage] = useState('https://placehold.co/600x400.png');
   const [timestamp, setTimestamp] = useState('2h');
-  const [comments, setComments] = useState<string[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [isVerified, setIsVerified] = useState(true);
   const [verifiedColor, setVerifiedColor] = useState('#1DA1F2');
   const [platform, setPlatform] = useState<SocialPlatform>('facebook');
@@ -295,17 +290,16 @@ export default function Home() {
         {comments.length > 0 && <Separator className="my-1" />}
         <div className="w-full p-2 space-y-3">
           {comments.map((comment, index) => {
-            const commenter = fakeCommenters[index % fakeCommenters.length];
             return (
               <div key={index} className="flex items-start gap-2.5">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={commenter.pic} alt={commenter.name} data-ai-hint={commenter.hint} />
-                  <AvatarFallback>{commenter.name.substring(0,1)}</AvatarFallback>
+                  <AvatarImage src={`https://placehold.co/40x40.png`} alt={comment.name} data-ai-hint={comment.profilePicHint} />
+                  <AvatarFallback>{comment.name.substring(0,1)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
                   <div className="bg-muted rounded-xl px-3 py-2">
-                    <p className="font-bold text-xs text-card-foreground">{commenter.name}</p>
-                    <p className="text-sm text-card-foreground">{comment}</p>
+                    <p className="font-bold text-xs text-card-foreground">{comment.name}</p>
+                    <p className="text-sm text-card-foreground">{comment.comment}</p>
                   </div>
                 </div>
               </div>

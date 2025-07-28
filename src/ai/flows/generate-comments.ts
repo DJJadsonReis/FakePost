@@ -18,8 +18,14 @@ const GenerateRealisticCommentsInputSchema = z.object({
 });
 export type GenerateRealisticCommentsInput = z.infer<typeof GenerateRealisticCommentsInputSchema>;
 
+const CommentSchema = z.object({
+    name: z.string().describe("The full name of the commenter."),
+    comment: z.string().describe("The generated comment text."),
+    profilePicHint: z.string().describe("A 1-2 word hint for generating a profile picture, e.g., 'smiling man', 'woman with glasses'.")
+});
+
 const GenerateRealisticCommentsOutputSchema = z.object({
-  comments: z.array(z.string()).describe('An array of generated comments.'),
+  comments: z.array(CommentSchema).describe('An array of generated comments, each with a name, comment, and profile picture hint.'),
 });
 export type GenerateRealisticCommentsOutput = z.infer<typeof GenerateRealisticCommentsOutputSchema>;
 
@@ -33,7 +39,7 @@ const generateCommentsPrompt = ai.definePrompt({
   output: {schema: GenerateRealisticCommentsOutputSchema},
   prompt: `Você é um especialista em simulação de engajamento em redes sociais.
 
-  Gere comentários realistas e variados para o seguinte post de rede social. Os comentários devem estar em português:
+  Gere comentários realistas e variados para o seguinte post de rede social. Para cada comentário, gere também um nome de comentarista e uma dica de 1 a 2 palavras para uma foto de perfil (ex: 'homem sorrindo', 'mulher de óculos'). Os comentários e nomes devem estar em português:
 
   Conteúdo do Post: {{{postContent}}}
 
@@ -45,8 +51,6 @@ const generateCommentsPrompt = ai.definePrompt({
   - {{{this}}}
   {{/each}}
   {{/if}}
-
-  Comentários:
   `,
 });
 

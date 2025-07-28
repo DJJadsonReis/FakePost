@@ -1,10 +1,10 @@
 'use server';
 
-import { generateRealisticComments } from '@/ai/flows/generate-comments';
+import { GenerateRealisticCommentsOutput, generateRealisticComments } from '@/ai/flows/generate-comments';
 
 export async function getAIGeneratedComments(
   postContent: string
-): Promise<{ comments?: string[]; error?: string }> {
+): Promise<{ comments?: GenerateRealisticCommentsOutput['comments']; error?: string }> {
   if (!postContent) {
     return { error: 'O conteúdo do post não pode estar vazio.' };
   }
