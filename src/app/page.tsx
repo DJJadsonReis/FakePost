@@ -313,7 +313,7 @@ export default function Home() {
         {postImage && (
             <CardContent className="p-0">
                 <Image
-                    src={postImage}
+                    src={postImage || 'https://placehold.co/480x480.png'}
                     alt="Post image"
                     width={480}
                     height={480}
@@ -604,5 +604,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
