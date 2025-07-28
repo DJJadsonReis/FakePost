@@ -192,16 +192,17 @@ export default function Home() {
         <Textarea id="post-content" value={postContent} onChange={(e) => setPostContent(e.target.value)} rows={5} />
       </div>
       <div className="space-y-2">
-          <Label htmlFor="post-image" className="flex items-center gap-2"><ImageIcon className="w-4 h-4" /> URL da Imagem do Post</Label>
-          <div className="flex items-center gap-2">
-            <Input id="post-image" value={postImage} onChange={(e) => setPostImage(e.target.value)} placeholder="Deixe em branco para não ter imagem"/>
-            {postImage && (
-              <Button variant="ghost" size="icon" onClick={() => setPostImage('')} aria-label="Remover imagem" className="h-9 w-9">
-                <X className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
+        <Label htmlFor="post-image" className="flex items-center gap-2"><ImageIcon className="w-4 h-4" /> URL da Imagem do Post</Label>
+        <div className="flex items-center gap-2">
+          <Input id="post-image" value={postImage} onChange={(e) => setPostImage(e.target.value)} />
+          {postImage && (
+            <Button variant="ghost" size="icon" onClick={() => setPostImage('')} aria-label="Remover imagem" className="h-9 w-9">
+              <X className="h-4 w-4" />
+            </Button>
+          )}
         </div>
+        <p className="text-xs text-muted-foreground">Deixe em branco para não ter imagem.</p>
+      </div>
       <div className="space-y-2">
         <Label htmlFor="timestamp" className="flex items-center gap-2"><Clock className="w-4 h-4" /> Data e Hora</Label>
         <Input id="timestamp" value={timestamp} onChange={(e) => setTimestamp(e.target.value)} />
