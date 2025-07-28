@@ -47,7 +47,7 @@ interface PostEditorProps {
     isPending: boolean;
     handleGenerate: (type: GenerationType) => void;
     editorState: any;
-    setEditorState: (updates: any) => void;
+    updateEditorState: (updates: any) => void;
 }
 
 export function PostEditor({
@@ -57,17 +57,17 @@ export function PostEditor({
     isPending,
     handleGenerate,
     editorState,
-    setEditorState
+    updateEditorState
 }: PostEditorProps) {
 
     const handleInputChange = (field: string, value: any) => {
-        setEditorState({ [field]: value });
+        updateEditorState({ [field]: value });
     };
 
     const handleNumberInputChange = (field: string, value: string) => {
         const num = Number(value);
         if (!isNaN(num)) {
-            setEditorState({ [field]: num });
+            updateEditorState({ [field]: num });
         }
     };
 
@@ -155,7 +155,7 @@ export function PostEditor({
                 <Label htmlFor="post-image">URL da Imagem do Post</Label>
                 <div className="flex items-center gap-2">
                 <Input id="post-image" value={editorState.postImage} onChange={(e) => handleInputChange('postImage', e.target.value)} placeholder="Cole uma URL de imagem aqui"/>
-                <Button variant="ghost" size="icon" onClick={() => setEditorState({ postImage: '', postVideo: '' })} aria-label="Remover imagem" className="h-9 w-9">
+                <Button variant="ghost" size="icon" onClick={() => updateEditorState({ postImage: '', postVideo: '' })} aria-label="Remover imagem" className="h-9 w-9">
                     <X className="h-4 w-4" />
                 </Button>
                 </div>
@@ -258,4 +258,3 @@ export function PostEditor({
         </div>
     );
 }
-    

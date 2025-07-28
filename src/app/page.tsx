@@ -16,7 +16,7 @@ import {
   Save,
   FolderOpen,
 } from 'lucide-react';
-import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedPostMedia, getAIGeneratedPostAudio, getAIGeneratedRandomPost, getAIGeneratedProfilePic } from './actions';
+import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedPostMedia, getAIGeneratedPostAudio, getAIGeneratedRandomPost } from './actions';
 import { useToast } from '@/hooks/use-toast';
 
 import type { Comment as CommentType, Reply } from '@/ai/flows/generate-comments';
@@ -65,9 +65,9 @@ export default function Home() {
     recommendations: 78,
   });
 
-  const updateEditorState = (updates: Partial<typeof editorState>) => {
+  const updateEditorState = useCallback((updates: Partial<typeof editorState>) => {
     setEditorState(prevState => ({ ...prevState, ...updates }));
-  };
+  }, []);
   
   // Other UI State
   const [platform, setPlatform] = useState<SocialPlatform>('tiktok');
@@ -101,7 +101,7 @@ export default function Home() {
     setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
   };
 
-  const handleGenerate = useCallback((type: GenerationType) => {
+  const handleGenerate = useCallback(async (type: GenerationType) => {
     setIsGenerating(prev => [...prev, type]);
      if (type === 'random') {
         toast({
@@ -119,6 +119,10 @@ export default function Home() {
             if (result.postContent) updateEditorState({ postContent: result.postContent });
             break;
           case 'profilePic':
+            // Note: getAIGeneratedProfilePic is not a standard action, so we call it directly for simplicity
+            // or create a dedicated action if it needs to be a server action. For this case, let's assume
+            // we'll need an action for it. Let's create a placeholder for the action call.
+            const { getAIGeneratedProfilePic } = await import('./actions');
             result = await getAIGeneratedProfilePic(editorState.profilePicPrompt);
             if (result.imageUrl) updateEditorState({ profilePic: result.imageUrl });
             break;
@@ -179,7 +183,7 @@ export default function Home() {
         setIsGenerating(prev => prev.filter(item => item !== type));
       }
     });
-  }, [editorState.postTopic, editorState.profilePicPrompt, editorState.postMediaPrompt, editorState.postContent, editorState.numberOfComments, platform, toast]);
+  }, [editorState.postTopic, editorState.profilePicPrompt, editorState.postMediaPrompt, editorState.postContent, editorState.numberOfComments, platform, toast, updateEditorState]);
 
 
   const handleLike = () => {
@@ -233,12 +237,12 @@ export default function Home() {
     }
   };
 
-  const handleLoadTemplate = (silent = false) => {
+  const handleLoadTemplate = useCallback((silent = false) => {
     const savedTemplate = localStorage.getItem('fakePostTemplate');
     if (savedTemplate) {
       try {
         const template = JSON.parse(savedTemplate);
-        setEditorState(prevState => ({ ...prevState, ...template }));
+        updateEditorState(template);
         if (!silent) {
             toast({
               title: 'Modelo Carregado!',
@@ -261,7 +265,7 @@ export default function Home() {
         description: 'Não há nenhum modelo salvo no seu navegador.',
       });
     }
-  };
+  }, [toast, updateEditorState]);
 
 
   const previewProps = {
@@ -347,7 +351,7 @@ export default function Home() {
                         isPending={isPending}
                         handleGenerate={handleGenerate}
                         editorState={editorState}
-                        setEditorState={updateEditorState}
+                        updateEditorState={updateEditorState}
                     />
                 </CardContent>
             </Card>
@@ -396,5 +400,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
