@@ -73,7 +73,7 @@ export default function Home() {
   // Engagement State
   const [likes, setLikes] = useState(128);
   const [reposts, setReposts] = useState(42);
-  const [shares] = useState(23);
+  const [shares, setShares] = useState(23);
   const [isLiked, setIsLiked] = useState(false);
 
   const handleGenerateComments = () => {
@@ -131,6 +131,24 @@ export default function Home() {
       <div className="space-y-2">
         <Label htmlFor="timestamp" className="flex items-center gap-2"><Clock className="w-4 h-4" /> Data e Hora</Label>
         <Input id="timestamp" value={timestamp} onChange={(e) => setTimestamp(e.target.value)} />
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="likes" className="flex items-center gap-2"><Heart className="w-4 h-4" /> Curtidas</Label>
+          <Input id="likes" type="number" value={likes} onChange={(e) => setLikes(Number(e.target.value))} />
+        </div>
+        {platform === 'facebook' && (
+          <div className="space-y-2">
+            <Label htmlFor="shares" className="flex items-center gap-2"><Share2 className="w-4 h-4" /> Compartilhamentos</Label>
+            <Input id="shares" type="number" value={shares} onChange={(e) => setShares(Number(e.target.value))} />
+          </div>
+        )}
+        {(platform === 'twitter' || platform === 'bluesky') && (
+            <div className="space-y-2">
+              <Label htmlFor="reposts" className="flex items-center gap-2"><Repeat className="w-4 h-4" /> Reposts</Label>
+              <Input id="reposts" type="number" value={reposts} onChange={(e) => setReposts(Number(e.target.value))} />
+            </div>
+        )}
       </div>
     </>
   );
