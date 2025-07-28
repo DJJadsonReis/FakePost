@@ -44,9 +44,10 @@ import {
   FileImage,
   BarChart,
   Video,
+  WandSparkles,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedProfilePic, getAIGeneratedPostImage, getAIGeneratedPostAudio, getAIGeneratedPostVideo } from './actions';
+import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedProfilePic, getAIGeneratedPostImage, getAIGeneratedPostAudio, getAIGeneratedPostVideo, getAIGeneratedRandomPost } from './actions';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -74,6 +75,7 @@ export default function Home() {
     postAudio: false,
     profilePic: false,
     comments: false,
+    random: false,
   });
   const [isPending, startTransition] = useTransition();
 
@@ -219,7 +221,7 @@ export default function Home() {
           });
         }
       } finally {
-        setIsGenerating(prev => ({ ...prev, profilePic: false }));
+        setIsGenerating(prev => ({ ...prev, profilePic: true }));
       }
     });
   };
@@ -300,6 +302,54 @@ export default function Home() {
       }
     });
   }
+
+  const handleRandomGeneration = () => {
+    setIsGenerating(prev => ({ ...prev, random: true }));
+    toast({
+      title: 'Surpreenda-me!',
+      description: 'Gerando um post totalmente novo... Isso pode levar um minuto.',
+    });
+    startTransition(async () => {
+      try {
+        const result = await getAIGeneratedRandomPost(platform === 'tiktok');
+        if (result.error) {
+          toast({
+            variant: 'destructive',
+            title: 'Erro na Geração Aleatória',
+            description: result.error,
+          });
+        } else if (result.post && result.comments) {
+          setProfileName(result.post.profileName);
+          setUsername(result.post.username);
+          setProfilePicPrompt(result.post.profilePicPrompt);
+          setPostContent(result.post.postContent);
+          setPostMediaPrompt(result.post.postMediaPrompt);
+          
+          setProfilePic(result.post.profilePicUrl || '');
+          setPostImage(result.post.postImageUrl || '');
+          setPostVideo(result.post.postVideoUrl || '');
+          setPostAudio('');
+
+          const newComments = result.comments as Comment[];
+          setComments(newComments);
+          generateProfilePictures(newComments);
+          
+          setLikes(Math.floor(Math.random() * 1000) + 50);
+          setReposts(Math.floor(Math.random() * 200) + 10);
+          setShares(Math.floor(Math.random() * 100) + 5);
+          setRecommendations(Math.floor(Math.random() * 50) + 5);
+
+
+          toast({
+            title: 'Post Gerado!',
+            description: 'Um novo universo de conteúdo foi criado para você explorar.',
+          });
+        }
+      } finally {
+        setIsGenerating(prev => ({ ...prev, random: false }));
+      }
+    });
+  };
 
 
   const handleLike = () => {
@@ -435,7 +485,7 @@ export default function Home() {
             <Label htmlFor="profile-pic-prompt" className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> Gerar Foto com IA</Label>
             <div className="flex items-center gap-2">
               <Input id="profile-pic-prompt" value={profilePicPrompt} onChange={(e) => setProfilePicPrompt(e.target.value)} placeholder="Ex: homem sorrindo"/>
-              <Button variant="outline" size="icon" onClick={handleGenerateProfilePic} disabled={isGenerating.profilePic} aria-label="Gerar foto com IA">
+              <Button variant="outline" size="icon" onClick={handleGenerateProfilePic} disabled={isGenerating.profilePic || isPending} aria-label="Gerar foto com IA">
                 {isGenerating.profilePic ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
               </Button>
             </div>
@@ -457,7 +507,7 @@ export default function Home() {
             <Label htmlFor="post-content" className="flex items-center gap-2">Conteúdo do Post</Label>
             <div className="flex items-start gap-2">
                 <Textarea id="post-content" value={postContent} onChange={(e) => setPostContent(e.target.value)} rows={5} className="flex-1"/>
-                <Button variant="outline" size="icon" onClick={handleGeneratePostContent} disabled={isGenerating.postContent} aria-label="Gerar conteúdo do post" className="h-auto">
+                <Button variant="outline" size="icon" onClick={handleGeneratePostContent} disabled={isGenerating.postContent || isPending} aria-label="Gerar conteúdo do post" className="h-auto">
                     {isGenerating.postContent ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                 </Button>
             </div>
@@ -465,7 +515,7 @@ export default function Home() {
           <div className="space-y-2">
             <Label className="flex items-center gap-2"><AudioLines className="w-4 h-4" /> Áudio do Post (TTS)</Label>
             <div className="flex items-center gap-2">
-              <Button onClick={handleGeneratePostAudio} disabled={isGenerating.postAudio} className="w-full" variant="outline">
+              <Button onClick={handleGeneratePostAudio} disabled={isGenerating.postAudio || isPending} className="w-full" variant="outline">
                 {isGenerating.postAudio ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                 Gerar Áudio com IA
               </Button>
@@ -493,7 +543,7 @@ export default function Home() {
             </Label>
             <div className="flex items-center gap-2">
               <Input id="post-media-prompt" value={postMediaPrompt} onChange={(e) => setPostMediaPrompt(e.target.value)} placeholder={platform === 'tiktok' ? "Ex: um drone voando sobre uma cidade" : "Ex: um gato em um telhado"}/>
-              <Button variant="outline" size="icon" onClick={handleGeneratePostMedia} disabled={isGenerating.postMedia} aria-label={`Gerar ${platform === 'tiktok' ? 'vídeo' : 'imagem'} com IA`}>
+              <Button variant="outline" size="icon" onClick={handleGeneratePostMedia} disabled={isGenerating.postMedia || isPending} aria-label={`Gerar ${platform === 'tiktok' ? 'vídeo' : 'imagem'} com IA`}>
                 {isGenerating.postMedia ? <Loader2 className="h-4 w-4 animate-spin" /> : (platform === 'tiktok' ? <Video className="h-4 w-4" /> : <ImageIcon className="h-4 w-4" />) }
               </Button>
             </div>
@@ -606,11 +656,16 @@ export default function Home() {
           {/* Editor Column */}
           <div className="md:col-span-2">
             <Card className="sticky top-8 shadow-lg">
-              <CardHeader>
-                <CardTitle>Editor de Post</CardTitle>
-                <CardDescription>
-                  Selecione a plataforma e modifique os detalhes.
-                </CardDescription>
+              <CardHeader className="flex-row items-center justify-between">
+                <div>
+                    <CardTitle>Editor de Post</CardTitle>
+                    <CardDescription>
+                    Selecione a plataforma e modifique os detalhes.
+                    </CardDescription>
+                </div>
+                <Button onClick={handleRandomGeneration} disabled={isGenerating.random || isPending} size="icon" variant="outline" aria-label="Surpreenda-me">
+                    {isGenerating.random ? <Loader2 className="h-5 w-5 animate-spin" /> : <WandSparkles className="h-5 w-5 text-accent" />}
+                </Button>
               </CardHeader>
               <CardContent className="space-y-6">
                  <div className="flex gap-2">
@@ -650,7 +705,7 @@ export default function Home() {
                 </div>
               </CardContent>
               <CardFooter>
-                 <Button onClick={handleGenerateComments} disabled={isGenerating.comments} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+                 <Button onClick={handleGenerateComments} disabled={isGenerating.comments || isPending} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
                   {isGenerating.comments ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />

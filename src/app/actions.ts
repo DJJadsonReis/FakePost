@@ -6,6 +6,7 @@ import { generatePostContent } from '@/ai/flows/generate-post-content';
 import { generatePostImage } from '@/ai/flows/generate-post-image';
 import { generateProfilePic } from '@/ai/flows/generate-profile-pic';
 import { generatePostVideo } from '@/ai/flows/generate-post-video';
+import { generateRandomPost } from '@/ai/flows/generate-random-post';
 
 export async function getAIGeneratedComments(
   postContent: string,
@@ -116,4 +117,61 @@ export async function getAIGeneratedPostAudio(
     console.error('Error generating post audio:', error);
     return { error: 'Ocorreu um erro inesperado ao gerar o áudio. Por favor, tente novamente mais tarde.' };
   }
+}
+
+
+export async function getAIGeneratedRandomPost(isTikTok: boolean): Promise<{
+    post?: {
+        profileName: string;
+        username: string;
+        profilePicPrompt: string;
+        postContent: string;
+        postMediaPrompt: string;
+        profilePicUrl?: string;
+        postImageUrl?: string;
+        postVideoUrl?: string;
+    },
+    comments?: GenerateRealisticCommentsOutput['comments'];
+    error?: string;
+}> {
+    try {
+        // 1. Generate all text content
+        const textResult = await generateRandomPost();
+        
+        // 2. Start generating images/video in parallel
+        const profilePicPromise = getAIGeneratedProfilePic(textResult.profilePicPrompt);
+        const postMediaPromise = isTikTok 
+            ? getAIGeneratedPostVideo(textResult.postMediaPrompt)
+            : getAIGeneratedPostImage(textResult.postMediaPrompt);
+
+        // 3. Start generating comments
+        const commentsPromise = getAIGeneratedComments(textResult.postContent, 5);
+        
+        // 4. Await all promises
+        const [profilePicResult, postMediaResult, commentsResult] = await Promise.all([
+            profilePicPromise,
+            postMediaPromise,
+            commentsPromise
+        ]);
+
+        if (profilePicResult.error || postMediaResult.error || commentsResult.error) {
+             const error = profilePicResult.error || postMediaResult.error || commentsResult.error;
+             console.error('Error in random generation sub-task:', error);
+             return { error: `Ocorreu um erro durante a geração aleatória: ${error}` };
+        }
+
+        return {
+            post: {
+                ...textResult,
+                profilePicUrl: profilePicResult.imageUrl,
+                postImageUrl: (postMediaResult as any).imageUrl,
+                postVideoUrl: (postMediaResult as any).videoUrl,
+            },
+            comments: commentsResult.comments,
+        };
+
+    } catch (error) {
+        console.error('Error generating random post:', error);
+        return { error: 'Ocorreu um erro inesperado ao gerar o post aleatório. Por favor, tente novamente.' };
+    }
 }
