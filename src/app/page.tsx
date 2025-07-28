@@ -97,7 +97,7 @@ export default function Home() {
   const [numberOfComments, setNumberOfComments] = useState(5);
   const [isVerified, setIsVerified] = useState(true);
   const [verifiedColor, setVerifiedColor] = useState('#1DA1F2');
-  const [platform, setPlatform] = useState<SocialPlatform>('instagram');
+  const [platform, setPlatform] = useState<SocialPlatform>('linkedin');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [isDownloading, setIsDownloading] = useState(false);
 
