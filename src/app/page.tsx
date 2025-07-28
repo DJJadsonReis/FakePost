@@ -44,6 +44,8 @@ import {
   Sparkles,
   Music,
   FileText,
+  Save,
+  FolderOpen,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedProfilePic } from './actions';
@@ -248,6 +250,62 @@ export default function Home() {
         });
       });
   }, [platform, toast]);
+
+  const handleSaveTemplate = () => {
+    const template = {
+      profileName,
+      username,
+      profilePic,
+      profilePicPrompt,
+      postTopic,
+      postContent,
+      postImage,
+      timestamp,
+      isVerified,
+      verifiedColor,
+      likes,
+      reposts,
+      shares,
+      recommendations,
+    };
+    localStorage.setItem('fakePostTemplate', JSON.stringify(template));
+    toast({
+      title: 'Modelo Salvo!',
+      description: 'Suas configurações atuais foram salvas no navegador.',
+    });
+  };
+
+  const handleLoadTemplate = () => {
+    const savedTemplate = localStorage.getItem('fakePostTemplate');
+    if (savedTemplate) {
+      const template = JSON.parse(savedTemplate);
+      setProfileName(template.profileName || 'Maria Silva');
+      setUsername(template.username || '@mariasilva');
+      setProfilePic(template.profilePic || 'https://placehold.co/48x48.png');
+      setProfilePicPrompt(template.profilePicPrompt || 'mulher sorrindo');
+      setPostTopic(template.postTopic || 'um lindo dia no parque');
+      setPostContent(template.postContent || "Aproveitando um lindo dia no parque! É incrível como um pouco de sol pode mudar todo o seu humor. ☀️ #abençoada #amantedanatureza #boasvibrações");
+      setPostImage(template.postImage || 'https://placehold.co/600x400.png');
+      setTimestamp(template.timestamp || '2h');
+      setIsVerified(template.isVerified !== undefined ? template.isVerified : true);
+      setVerifiedColor(template.verifiedColor || '#1DA1F2');
+      setLikes(template.likes || 128);
+      setReposts(template.reposts || 42);
+      setShares(template.shares || 23);
+      setRecommendations(template.recommendations || 78);
+      toast({
+        title: 'Modelo Carregado!',
+        description: 'As configurações salvas foram aplicadas.',
+      });
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Nenhum Modelo Encontrado',
+        description: 'Não há nenhum modelo salvo no seu navegador.',
+      });
+    }
+  };
+
 
   const commonEditorFields = (
     <>
@@ -792,6 +850,17 @@ const renderTikTokPreview = () => (
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                 <div className="flex gap-2">
+                  <Button onClick={handleSaveTemplate} className="w-full">
+                    <Save className="mr-2 h-4 w-4" />
+                    Salvar Modelo
+                  </Button>
+                  <Button onClick={handleLoadTemplate} variant="outline" className="w-full">
+                    <FolderOpen className="mr-2 h-4 w-4" />
+                    Carregar Modelo
+                  </Button>
+                </div>
+                <Separator/>
                 <Tabs value={platform} onValueChange={(value) => setPlatform(value as SocialPlatform)} className="w-full">
                   <TabsList className="grid w-full grid-cols-3 md:grid-cols-4 h-auto">
                     <TabsTrigger value="facebook">Facebook</TabsTrigger>
