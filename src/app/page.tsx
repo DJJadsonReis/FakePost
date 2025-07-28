@@ -252,7 +252,7 @@ export default function Home() {
     if (savedTemplate) {
       try {
         const template = JSON.parse(savedTemplate);
-        updateEditorState(template);
+        setEditorState(template);
         toast({
             title: 'Modelo Carregado!',
             description: 'As configurações salvas foram aplicadas.',
@@ -367,15 +367,15 @@ export default function Home() {
           {/* Preview Column */}
           <div className="md:col-span-3">
             <div className="flex flex-col items-center gap-4">
-                <div className="w-full border rounded-lg p-2 bg-muted/50">
-                    <div
-                        ref={previewRef}
-                        className="w-full rounded-lg flex justify-center"
-                        style={{ backgroundColor: theme === 'dark' ? '#1a1a1a' : '#ffffff' }}
-                    >
-                        {renderPreview()}
-                    </div>
+              <div className="w-full border rounded-lg p-2 bg-muted/50">
+                <div
+                  ref={previewRef}
+                  className="w-full rounded-lg flex justify-center"
+                  style={{ backgroundColor: theme === 'dark' ? '#1a1a1a' : '#ffffff' }}
+                >
+                  {renderPreview()}
                 </div>
+              </div>
               <Button onClick={handleDownloadImage} disabled={isDownloading} className="w-full max-w-xl">
                   {isDownloading ? (
                     <>
