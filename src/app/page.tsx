@@ -103,12 +103,12 @@ export default function Home() {
     if (savedTemplate) {
       try {
         const template = JSON.parse(savedTemplate);
-        updateEditorState(template);
+        setEditorState(prevState => ({ ...prevState, ...template }));
       } catch (error) {
          console.error("Could not load template from local storage", error);
       }
     }
-  }, [updateEditorState]);
+  }, []);
 
 
   const toggleTheme = () => {
@@ -250,12 +250,12 @@ export default function Home() {
     }
   };
 
-  const handleLoadTemplate = useCallback(() => {
+  const handleLoadTemplate = () => {
     const savedTemplate = localStorage.getItem('fakePostTemplate');
     if (savedTemplate) {
       try {
         const template = JSON.parse(savedTemplate);
-        updateEditorState(template);
+        setEditorState(prevState => ({ ...prevState, ...template }));
         toast({
             title: 'Modelo Carregado!',
             description: 'As configurações salvas foram aplicadas.',
@@ -274,7 +274,7 @@ export default function Home() {
         description: 'Não há nenhum modelo salvo no seu navegador.',
       });
     }
-  }, [toast, updateEditorState]);
+  };
 
 
   const previewProps = {
