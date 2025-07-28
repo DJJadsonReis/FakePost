@@ -36,7 +36,7 @@ export function InstagramPreview({
         <CardHeader className="flex flex-row items-center justify-between p-3">
             <div className="flex items-center gap-3">
                 <Avatar className="h-8 w-8 border">
-                    <AvatarImage src={profilePic} alt={username} data-ai-hint="profile avatar" />
+                    <AvatarImage src={profilePic} alt={username} />
                     <AvatarFallback>{username.substring(0,1)}</AvatarFallback>
                 </Avatar>
                 <div className="flex items-center gap-1">
@@ -55,7 +55,6 @@ export function InstagramPreview({
                     width={480}
                     height={480}
                     className="w-full h-auto object-cover"
-                    data-ai-hint="social media post"
                 />
             </CardContent>
         )}

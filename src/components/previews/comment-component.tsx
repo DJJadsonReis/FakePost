@@ -5,7 +5,7 @@ export function CommentComponent({ comment }: { comment: Comment | ReplyWithPic 
   return (
     <div className="flex items-start gap-2.5">
       <Avatar className="h-8 w-8">
-        <AvatarImage src={comment.profilePicUrl || 'https://placehold.co/40x40.png'} alt={comment.name} data-ai-hint={'profilePicHint' in comment ? comment.profilePicHint : ''} />
+        <AvatarImage src={comment.profilePicUrl || 'https://placehold.co/40x40.png'} alt={comment.name} />
         <AvatarFallback>{comment.name.substring(0, 1)}</AvatarFallback>
       </Avatar>
       <div className="flex-1">

@@ -42,7 +42,7 @@ export function FacebookPreview({
     <Card className="w-full max-w-xl font-sans transition-all duration-300 bg-card text-card-foreground">
       <CardHeader className="flex flex-row items-center gap-3 space-y-0 p-4">
         <Avatar className="h-10 w-10">
-          <AvatarImage src={profilePic} alt={profileName} data-ai-hint="profile avatar" />
+          <AvatarImage src={profilePic} alt={profileName} />
           <AvatarFallback>{profileName.substring(0, 2)}</AvatarFallback>
         </Avatar>
         <div className="grid gap-0.5">
@@ -64,7 +64,7 @@ export function FacebookPreview({
       </CardContent>
       {postImage && (
         <CardContent className="p-0">
-           <Image src={postImage} alt="Post image" width={558} height={558} className="w-full h-auto" data-ai-hint="social media post"/>
+           <Image src={postImage} alt="Post image" width={558} height={558} className="w-full h-auto" />
         </CardContent>
       )}
       <CardFooter className="flex flex-col items-start p-2">

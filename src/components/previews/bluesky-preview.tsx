@@ -28,7 +28,7 @@ export function BlueSkyPreview({
     <Card className="w-full max-w-xl bg-card text-card-foreground font-sans p-4 border-0 sm:border">
       <div className="flex items-start gap-3">
         <Avatar className="h-12 w-12">
-          <AvatarImage src={profilePic} alt={profileName} data-ai-hint="profile avatar" />
+          <AvatarImage src={profilePic} alt={profileName} />
           <AvatarFallback>{profileName.substring(0, 2)}</AvatarFallback>
         </Avatar>
         <div className="flex-1">
@@ -47,7 +47,7 @@ export function BlueSkyPreview({
           <PostAudioPlayer postAudio={postAudio} />
           {postImage && (
             <div className="mt-3 rounded-lg border border-border overflow-hidden">
-               <Image src={postImage} alt="Post image" width={500} height={300} className="w-full h-auto object-cover" data-ai-hint="social media post"/>
+               <Image src={postImage} alt="Post image" width={500} height={300} className="w-full h-auto object-cover" />
             </div>
           )}
           <div className="flex justify-start gap-8 mt-3 text-muted-foreground">

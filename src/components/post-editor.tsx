@@ -123,7 +123,7 @@ export function PostEditor({
             )}
            <div className="space-y-2">
             <Label htmlFor="profile-pic">URL da Foto de Perfil</Label>
-            <Input id="profile-pic" value={editorState.profilePic} onChange={(e) => handleInputChange('profilePic', e.target.value)} placeholder="Cole uma URL ou gere com IA"/>
+            <Input id="profile-pic" value={editorState.profilePic} onChange={(e) => handleInputChange('profilePic', e.target.value)} placeholder="Cole uma URL ou gere uma imagem"/>
           </div>
         </div>
       </EditorSection>
@@ -135,7 +135,7 @@ export function PostEditor({
       >
         <div className="space-y-4 p-1">
           <div className="space-y-2">
-            <Label htmlFor="post-topic">Tópico para o Post (IA)</Label>
+            <Label htmlFor="post-topic">Tópico para o Post</Label>
             <Input id="post-topic" value={editorState.postTopic} onChange={(e) => handleInputChange('postTopic', e.target.value)} placeholder="Sobre o que deve ser o post?"/>
           </div>
           <div className="space-y-2">
@@ -148,11 +148,11 @@ export function PostEditor({
             </div>
           </div>
           <div className="space-y-2">
-            <Label>Áudio do Post (TTS)</Label>
+            <Label>Áudio do Post</Label>
             <div className="flex items-center gap-2">
               <Button onClick={() => handleGenerate('postAudio')} disabled={isGenerating.includes('postAudio') || isPending} className="w-full" variant="outline">
                 {isGenerating.includes('postAudio') ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <AudioLines className="mr-2 h-4 w-4" />}
-                Gerar Áudio com IA
+                Gerar Áudio
               </Button>
               {editorState.postAudio && (
                 <Button variant="ghost" size="icon" onClick={() => handleInputChange('postAudio', '')} aria-label="Remover áudio">
@@ -175,11 +175,11 @@ export function PostEditor({
            { currentPlatformConfig.mediaType !== 'imageOnly' && (
               <div className="space-y-2">
                 <Label htmlFor="post-media-prompt">
-                  Gerar {currentPlatformConfig.mediaType === 'video' ? 'Vídeo' : 'Imagem'} com IA
+                  Gerar {currentPlatformConfig.mediaType === 'video' ? 'Vídeo' : 'Imagem'}
                 </Label>
                 <div className="flex items-center gap-2">
                   <Input id="post-media-prompt" value={editorState.postMediaPrompt} onChange={(e) => handleInputChange('postMediaPrompt', e.target.value)} placeholder={currentPlatformConfig.mediaType === 'video' ? "Ex: um drone voando sobre uma cidade" : "Ex: um gato em um telhado"}/>
-                  <Button variant="outline" size="icon" onClick={() => handleGenerate('postMedia')} disabled={isGenerating.includes('postMedia') || isPending} aria-label={`Gerar ${currentPlatformConfig.mediaType === 'video' ? 'vídeo' : 'imagem'} com IA`}>
+                  <Button variant="outline" size="icon" onClick={() => handleGenerate('postMedia')} disabled={isGenerating.includes('postMedia') || isPending} aria-label={`Gerar ${currentPlatformConfig.mediaType === 'video' ? 'vídeo' : 'imagem'}`}>
                     {isGenerating.includes('postMedia') ? <Loader2 className="h-4 w-4 animate-spin" /> : (currentPlatformConfig.mediaType === 'video' ? <Video className="h-4 w-4 text-accent" /> : <ImageIcon className="h-4 w-4 text-accent" />) }
                   </Button>
                 </div>
@@ -265,7 +265,7 @@ export function PostEditor({
                   ) : (
                     <>
                     <MessageSquare className="mr-2 h-4 w-4" />
-                    Gerar Comentários com IA
+                    Gerar Comentários
                     </>
                   )}
                 </Button>

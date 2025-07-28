@@ -28,7 +28,7 @@ export function ThreadsPreview({
             <div className="flex items-start gap-3">
                 <div className="flex flex-col items-center">
                     <Avatar className="h-12 w-12">
-                        <AvatarImage src={profilePic} alt={profileName} data-ai-hint="profile avatar" />
+                        <AvatarImage src={profilePic} alt={profileName} />
                         <AvatarFallback>{profileName.substring(0, 2)}</AvatarFallback>
                     </Avatar>
                     {comments.length > 0 && <div className="w-0.5 grow bg-border my-2"></div>}
@@ -48,7 +48,7 @@ export function ThreadsPreview({
                     <PostAudioPlayer postAudio={postAudio} />
                     {postImage && (
                         <div className="mt-3 rounded-2xl border border-border overflow-hidden">
-                           <Image src={postImage} alt="Post image" width={500} height={300} className="w-full h-auto object-cover" data-ai-hint="social media post"/>
+                           <Image src={postImage} alt="Post image" width={500} height={300} className="w-full h-auto object-cover" />
                         </div>
                     )}
                     <div className="flex gap-4 mt-3 text-muted-foreground">

@@ -35,7 +35,7 @@ import { AdUnit } from '@/components/ad-unit';
 export type Comment = CommentType & { profilePicUrl?: string; replies?: ReplyWithPic[] };
 export type ReplyWithPic = Reply & { profilePicUrl?: string };
 export type SocialPlatform = 'facebook' | 'instagram' | 'twitter' | 'threads' | 'bluesky' | 'linkedin' | 'tiktok' | 'fakebook';
-export type GenerationType = 'postContent' | 'postMedia' | 'postAudio' | 'profilePic' | 'comments' | 'random';
+export type GenerationType = 'postContent' | 'postMedia' | 'postAudio' | 'comments' | 'random';
 
 export default function Home() {
   const [isGenerating, setIsGenerating] = useState<GenerationType[]>([]);
@@ -49,7 +49,6 @@ export default function Home() {
     profileName: 'Maria Silva',
     username: '@mariasilva',
     profilePic: 'https://placehold.co/48x48.png',
-    profilePicPrompt: 'mulher sorrindo',
     postTopic: 'um lindo dia no parque',
     postContent:
       "Aproveitando um lindo dia no parque! É incrível como um pouco de sol pode mudar todo o seu humor. ☀️ #abençoada #amantedanatureza #boasvibrações",
@@ -162,7 +161,6 @@ export default function Home() {
                 updateEditorState({
                     profileName: result.post.profileName,
                     username: result.post.username,
-                    profilePicPrompt: result.post.profilePicPrompt,
                     postContent: result.post.postContent,
                     postMediaPrompt: result.post.postMediaPrompt,
                     profilePic: result.post.profilePicUrl || '',
@@ -180,21 +178,21 @@ export default function Home() {
         }
 
         if (result.error) {
-          toast({ variant: 'destructive', title: 'Erro na Geração', description: result.error });
+          toast({ variant: 'destructive', title: 'Erro', description: result.error });
         } else {
            if (type !== 'random') {
-              toast({ title: 'Sucesso!', description: `A geração de '${type}' foi concluída.` });
+              toast({ title: 'Sucesso!', description: `Conteúdo atualizado.` });
            }
         }
 
       } catch (error) {
         console.error(`Error generating ${type}:`, error);
-        toast({ variant: 'destructive', title: 'Erro Inesperado', description: `Ocorreu um erro ao gerar ${type}.` });
+        toast({ variant: 'destructive', title: 'Erro Inesperado', description: `Ocorreu um erro ao processar sua solicitação.` });
       } finally {
         setIsGenerating(prev => prev.filter(item => item !== type));
       }
     });
-  }, [platform, toast, updateEditorState]);
+  }, [platform, toast, updateEditorState, editorState]);
 
 
   const handleLike = () => {

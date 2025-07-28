@@ -41,7 +41,7 @@ export function LinkedInPreview({
     <Card className="w-full max-w-xl font-sans bg-card text-card-foreground border-0 sm:border">
         <CardHeader className="flex flex-row items-start gap-3 p-4">
             <Avatar className="h-14 w-14">
-                <AvatarImage src={profilePic} alt={profileName} data-ai-hint="profile avatar" />
+                <AvatarImage src={profilePic} alt={profileName} />
                 <AvatarFallback>{profileName.substring(0, 2)}</AvatarFallback>
             </Avatar>
             <div className="flex-1">
@@ -49,7 +49,7 @@ export function LinkedInPreview({
                     <p className="font-bold">{profileName}</p>
                     <VerifiedBadge isVerified={isVerified} verifiedColor={verifiedColor} className="h-4 w-4" />
                 </div>
-                <p className="text-sm text-muted-foreground">Engenheiro de Software | IA & Desenvolvimento Web</p>
+                <p className="text-sm text-muted-foreground">Engenheiro de Software | Desenvolvimento Web</p>
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <span>{timestamp}</span>
                     <Dot/>
@@ -64,7 +64,7 @@ export function LinkedInPreview({
         </CardContent>
         {postImage && (
             <CardContent className="p-0">
-                <Image src={postImage} alt="Post image" width={558} height={350} className="w-full h-auto object-cover" data-ai-hint="social media post"/>
+                <Image src={postImage} alt="Post image" width={558} height={350} className="w-full h-auto object-cover" />
             </CardContent>
         )}
         <CardFooter className="flex flex-col items-start p-2">

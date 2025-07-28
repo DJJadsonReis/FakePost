@@ -39,7 +39,7 @@ export function TwitterPreview({
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
           <Avatar className="h-12 w-12">
-            <AvatarImage src={profilePic} alt={profileName} data-ai-hint="profile avatar" />
+            <AvatarImage src={profilePic} alt={profileName} />
             <AvatarFallback>{profileName.substring(0, 2)}</AvatarFallback>
           </Avatar>
           <div className="flex-1">
@@ -57,7 +57,7 @@ export function TwitterPreview({
             <PostAudioPlayer postAudio={postAudio} />
             {postImage && (
               <div className="mt-3 rounded-2xl border border-border overflow-hidden">
-                <Image src={postImage} alt="Post image" width={500} height={300} className="w-full h-auto object-cover" data-ai-hint="social media post" />
+                <Image src={postImage} alt="Post image" width={500} height={300} className="w-full h-auto object-cover" />
               </div>
             )}
              <p className="text-muted-foreground text-sm mt-3">{timestamp}</p>
