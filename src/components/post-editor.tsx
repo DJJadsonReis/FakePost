@@ -219,7 +219,7 @@ export function PostEditor({
             </div>
             <Separator/>
             <Tabs value={platform} onValueChange={(value) => setPlatform(value as SocialPlatform)} className="w-full">
-                <TabsList className="grid w-full grid-cols-3 md:grid-cols-4 h-auto">
+                <TabsList className="h-auto">
                 <TabsTrigger value="instagram">Instagram</TabsTrigger>
                 <TabsTrigger value="facebook">Facebook</TabsTrigger>
                 <TabsTrigger value="twitter">Twitter</TabsTrigger>
