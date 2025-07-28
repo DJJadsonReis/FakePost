@@ -51,7 +51,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GenerateRealisticCommentsOutput } from '@/ai/flows/generate-comments';
 
-type Comment = GenerateRealisticCommentsOutput['comments'][0] & { profilePicUrl?: string };
+type Comment = GenerateRealisticCommentsOutput['comments'][0] & { profilePicUrl?: string; replies?: Comment[] };
 
 type SocialPlatform = 'facebook' | 'instagram' | 'twitter' | 'threads' | 'bluesky' | 'linkedin';
 
@@ -277,6 +277,34 @@ export default function Home() {
   const VerifiedBadge = ({className}: {className?: string}) => (
     isVerified && <BadgeCheck className={cn("text-white", className)} style={{ fill: verifiedColor, color: 'white' }}/>
   );
+  
+  const CommentComponent = ({ comment }: { comment: Comment }) => (
+    <div className="flex items-start gap-2.5">
+      <Avatar className="h-8 w-8">
+        <AvatarImage src={comment.profilePicUrl || 'https://placehold.co/40x40.png'} alt={comment.name} data-ai-hint={comment.profilePicHint} />
+        <AvatarFallback>{comment.name.substring(0, 1)}</AvatarFallback>
+      </Avatar>
+      <div className="flex-1">
+        <div className="bg-muted rounded-xl px-3 py-2">
+          <p className="font-bold text-xs text-card-foreground">{comment.name}</p>
+          <p className="text-sm text-card-foreground">{comment.comment}</p>
+        </div>
+        {/* Placeholder for comment actions like "Like", "Reply", "Time" */}
+        <div className="flex gap-2 text-xs text-muted-foreground px-2 pt-1">
+          <button className="font-semibold hover:underline">Curtir</button>
+          <button className="font-semibold hover:underline">Responder</button>
+        </div>
+
+        {comment.replies && comment.replies.length > 0 && (
+          <div className="pt-2 space-y-3">
+            {comment.replies.map((reply, index) => (
+              <CommentComponent key={index} comment={reply} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 
   const renderFacebookPreview = () => (
     <Card className="w-full max-w-xl font-sans transition-all duration-300 bg-card text-card-foreground">
@@ -334,22 +362,9 @@ export default function Home() {
         </div>
         {comments.length > 0 && <Separator className="my-1" />}
         <div className="w-full p-2 space-y-3">
-          {comments.map((comment, index) => {
-            return (
-              <div key={index} className="flex items-start gap-2.5">
-                <Avatar className="h-8 w-8">
-                   <AvatarImage src={comment.profilePicUrl || 'https://placehold.co/40x40.png'} alt={comment.name} data-ai-hint={comment.profilePicHint} />
-                  <AvatarFallback>{comment.name.substring(0,1)}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <div className="bg-muted rounded-xl px-3 py-2">
-                    <p className="font-bold text-xs text-card-foreground">{comment.name}</p>
-                    <p className="text-sm text-card-foreground">{comment.comment}</p>
-                  </div>
-                </div>
-              </div>
-            )
-          })}
+          {comments.map((comment, index) => (
+            <CommentComponent key={index} comment={comment} />
+          ))}
         </div>
       </CardFooter>
     </Card>
@@ -740,3 +755,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
