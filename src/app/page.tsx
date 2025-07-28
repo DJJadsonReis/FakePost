@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useTransition, useEffect } from 'react';
+import { useState, useTransition, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
+import * as htmlToImage from 'html-to-image';
 import {
   Avatar,
   AvatarFallback,
@@ -37,6 +38,7 @@ import {
   Dot,
   Sun,
   Moon,
+  Download,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { getAIGeneratedComments } from './actions';
@@ -58,6 +60,7 @@ type SocialPlatform = 'facebook' | 'instagram' | 'twitter' | 'threads' | 'bluesk
 export default function Home() {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
+  const previewRef = useRef<HTMLDivElement>(null);
 
   // Editor State
   const [profileName, setProfileName] = useState('Maria Silva');
@@ -101,6 +104,7 @@ export default function Home() {
   const [reposts, setReposts] = useState(42);
   const [shares, setShares] = useState(23);
   const [isLiked, setIsLiked] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const handleGenerateComments = () => {
     startTransition(async () => {
@@ -126,6 +130,35 @@ export default function Home() {
     setLikes(l => isLiked ? l -1 : l + 1);
   };
   
+  const handleDownloadImage = useCallback(() => {
+    if (previewRef.current === null) {
+      return;
+    }
+    setIsDownloading(true);
+
+    htmlToImage.toPng(previewRef.current, { cacheBust: true, pixelRatio: 2 })
+      .then((dataUrl) => {
+        const link = document.createElement('a');
+        link.download = `fakepost-${platform}.png`;
+        link.href = dataUrl;
+        link.click();
+        setIsDownloading(false);
+         toast({
+          title: 'Download Iniciado!',
+          description: 'Seu post está sendo baixado como uma imagem.',
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        setIsDownloading(false);
+        toast({
+          variant: 'destructive',
+          title: 'Erro no Download',
+          description: 'Não foi possível baixar a imagem. Tente novamente.',
+        });
+      });
+  }, [platform]);
+
   const commonEditorFields = (
     <>
       <div className="space-y-2">
@@ -189,7 +222,7 @@ export default function Home() {
         <div className="grid gap-0.5">
           <div className="flex items-center gap-1">
             <p className="font-bold text-sm">{profileName}</p>
-            {isVerified && <BadgeCheck className="h-4 w-4 text-blue-500 fill-current" />}
+            {isVerified && <BadgeCheck className="h-4 w-4 text-blue-500 fill-blue-500" />}
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <span>{timestamp}</span>
@@ -217,7 +250,7 @@ export default function Home() {
         <Separator className="my-1" />
         <div className="grid grid-cols-3 w-full gap-1">
           <Button variant="ghost" className="text-muted-foreground font-semibold" onClick={handleLike}>
-            <ThumbsUp className={cn("mr-2 h-5 w-5", isLiked && "text-blue-600 fill-current")} /> Curtir
+            <ThumbsUp className={cn("mr-2 h-5 w-5", isLiked && "text-blue-600 fill-blue-600")} /> Curtir
           </Button>
           <Button variant="ghost" className="text-muted-foreground font-semibold">
             <MessageCircle className="mr-2 h-5 w-5" /> Comentar
@@ -260,7 +293,7 @@ export default function Home() {
                 </Avatar>
                 <div className="flex items-center gap-1">
                   <p className="font-bold text-sm">{profileName}</p>
-                   {isVerified && <BadgeCheck className="h-4 w-4 text-blue-500 fill-current" />}
+                   {isVerified && <BadgeCheck className="h-4 w-4 text-blue-500 fill-blue-500" />}
                 </div>
             </div>
             <MoreHorizontal className="h-5 w-5" />
@@ -283,7 +316,7 @@ export default function Home() {
             <div className="flex justify-between items-center mb-2">
                 <div className="flex gap-4">
                     <button onClick={handleLike} className="focus:outline-none">
-                        <Heart className={cn("h-7 w-7", isLiked ? 'text-red-500 fill-current' : 'text-card-foreground')} />
+                        <Heart className={cn("h-7 w-7", isLiked ? 'text-red-500 fill-red-500' : 'text-card-foreground')} />
                     </button>
                     <MessageCircle className="h-7 w-7" />
                     <Send className="h-7 w-7" />
@@ -317,7 +350,7 @@ export default function Home() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1">
                 <p className="font-bold">{profileName}</p>
-                {isVerified && <BadgeCheck className="h-5 w-5 text-blue-500 fill-current" />}
+                {isVerified && <BadgeCheck className="h-5 w-5 text-blue-500 fill-blue-500" />}
                 <p className="text-muted-foreground">{username}</p>
                 <span className="text-muted-foreground">·</span>
                 <p className="text-muted-foreground">{timestamp}</p>
@@ -362,7 +395,7 @@ export default function Home() {
                         </Avatar>
                         <div className="flex items-center gap-1">
                             <p className="font-bold">{profileName}</p>
-                            {isVerified && <BadgeCheck className="h-5 w-5 text-blue-500 fill-current" />}
+                            {isVerified && <BadgeCheck className="h-5 w-5 text-black dark:text-white fill-black dark:fill-white" />}
                         </div>
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
@@ -379,7 +412,7 @@ export default function Home() {
                         </div>
                     )}
                     <div className="flex gap-4 mt-3 text-muted-foreground">
-                        <button onClick={handleLike} className="focus:outline-none"><Heart className={cn("h-6 w-6", isLiked ? 'text-red-500 fill-current' : 'text-card-foreground')} /></button>
+                        <button onClick={handleLike} className="focus:outline-none"><Heart className={cn("h-6 w-6", isLiked ? 'text-red-500 fill-red-500' : 'text-card-foreground')} /></button>
                         <MessageCircle className="h-6 w-6" />
                         <Repeat className="h-6 w-6" />
                         <Send className="h-6 w-6" />
@@ -407,7 +440,7 @@ export default function Home() {
              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 flex-wrap">
                   <p className="font-bold">{profileName}</p>
-                   {isVerified && <BadgeCheck className="h-5 w-5 text-blue-500 fill-current" />}
+                   {isVerified && <BadgeCheck className="h-5 w-5 text-blue-500 fill-blue-500" />}
                   <p className="text-muted-foreground">{username}</p>
                   <span className="text-muted-foreground">·</span>
                   <p className="text-muted-foreground">{timestamp}</p>
@@ -519,8 +552,23 @@ export default function Home() {
 
           {/* Preview Column */}
           <div className="md:col-span-3">
-            <div className="flex flex-col items-center">
-              {renderPreview()}
+            <div className="flex flex-col items-center gap-4">
+              <div ref={previewRef} className="w-full flex justify-center">
+                {renderPreview()}
+              </div>
+              <Button onClick={handleDownloadImage} disabled={isDownloading} className="w-full max-w-xl">
+                  {isDownloading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Baixando...
+                    </>
+                  ) : (
+                    <>
+                     <Download className="mr-2 h-4 w-4" />
+                      Baixar Post
+                    </>
+                  )}
+              </Button>
             </div>
           </div>
         </main>
