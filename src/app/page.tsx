@@ -671,18 +671,18 @@ export default function Home() {
         
         <footer className="text-center mt-16 py-6 border-t border-border/50">
            <p className="text-sm text-muted-foreground flex items-center justify-center gap-1.5">
-            Feito com <Heart className={cn("w-4 h-4 fill-current", theme === 'light' ? 'text-red-500' : 'text-white')} /> por
+            Feito com <Heart className="w-4 h-4 text-primary fill-current" /> por
             <a
               href="https://www.instagram.com/djjadsonreis"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-semibold text-foreground underline-offset-4 hover:underline hover:text-primary transition-colors"
+              className="font-semibold text-primary underline-offset-4 hover:underline"
             >
               Jadson Reis
             </a>
           </p>
           <p className="text-xs text-muted-foreground mt-2">
-            Este site foi criado para fins educacionais e não possui fins lucrativos.
+            Este é um projeto de código aberto para fins educacionais.
           </p>
         </footer>
       </div>
