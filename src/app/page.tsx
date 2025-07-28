@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import Image from 'next/image';
 import {
   Avatar,
@@ -35,6 +35,8 @@ import {
   Send,
   MoreHorizontal,
   Dot,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { getAIGeneratedComments } from './actions';
@@ -69,6 +71,30 @@ export default function Home() {
   const [comments, setComments] = useState<string[]>([]);
   const [isVerified, setIsVerified] = useState(false);
   const [platform, setPlatform] = useState<SocialPlatform>('facebook');
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+    if (savedTheme) {
+      setTheme(savedTheme);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
+  };
 
   // Engagement State
   const [likes, setLikes] = useState(128);
@@ -163,9 +189,9 @@ export default function Home() {
         <div className="grid gap-0.5">
           <div className="flex items-center gap-1">
             <p className="font-bold text-sm">{profileName}</p>
-            {isVerified && <BadgeCheck className="h-4 w-4 text-blue-500 fill-blue-500" />}
+            {isVerified && <BadgeCheck className="h-4 w-4 text-blue-500 fill-current" />}
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-gray-500">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <span>{timestamp}</span>
             <Dot/>
             <Globe className="h-3 w-3" />
@@ -181,7 +207,7 @@ export default function Home() {
         </CardContent>
       )}
       <CardFooter className="flex flex-col items-start p-2">
-        <div className="flex justify-between w-full text-xs text-gray-600 py-1 px-2">
+        <div className="flex justify-between w-full text-xs text-muted-foreground py-1 px-2">
           <span>{likes.toLocaleString()} Curtidas</span>
           <div className="flex gap-4">
             <span>{comments.length} Comentários</span>
@@ -190,13 +216,13 @@ export default function Home() {
         </div>
         <Separator className="my-1" />
         <div className="grid grid-cols-3 w-full gap-1">
-          <Button variant="ghost" className="text-gray-600 font-semibold" onClick={handleLike}>
-            <ThumbsUp className={cn("mr-2 h-5 w-5", isLiked && "text-blue-600 fill-blue-600")} /> Curtir
+          <Button variant="ghost" className="text-muted-foreground font-semibold" onClick={handleLike}>
+            <ThumbsUp className={cn("mr-2 h-5 w-5", isLiked && "text-blue-600 fill-current")} /> Curtir
           </Button>
-          <Button variant="ghost" className="text-gray-600 font-semibold">
+          <Button variant="ghost" className="text-muted-foreground font-semibold">
             <MessageCircle className="mr-2 h-5 w-5" /> Comentar
           </Button>
-          <Button variant="ghost" className="text-gray-600 font-semibold">
+          <Button variant="ghost" className="text-muted-foreground font-semibold">
             <Share2 className="mr-2 h-5 w-5" /> Compartilhar
           </Button>
         </div>
@@ -211,9 +237,9 @@ export default function Home() {
                   <AvatarFallback>{commenter.name.substring(0,1)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <div className="bg-gray-100 rounded-xl px-3 py-2">
-                    <p className="font-bold text-xs">{commenter.name}</p>
-                    <p className="text-sm">{comment}</p>
+                  <div className="bg-muted rounded-xl px-3 py-2">
+                    <p className="font-bold text-xs text-card-foreground">{commenter.name}</p>
+                    <p className="text-sm text-card-foreground">{comment}</p>
                   </div>
                 </div>
               </div>
@@ -225,7 +251,7 @@ export default function Home() {
   );
   
   const renderInstagramPreview = () => (
-     <Card className="w-full max-w-md shadow-lg rounded-none sm:rounded-lg">
+     <Card className="w-full max-w-md shadow-lg rounded-none sm:rounded-lg bg-card text-card-foreground">
         <CardHeader className="flex flex-row items-center justify-between p-3">
             <div className="flex items-center gap-3">
                 <Avatar className="h-8 w-8 border">
@@ -234,7 +260,7 @@ export default function Home() {
                 </Avatar>
                 <div className="flex items-center gap-1">
                   <p className="font-bold text-sm">{profileName}</p>
-                   {isVerified && <BadgeCheck className="h-4 w-4 text-blue-500 fill-blue-500" />}
+                   {isVerified && <BadgeCheck className="h-4 w-4 text-blue-500 fill-current" />}
                 </div>
             </div>
             <MoreHorizontal className="h-5 w-5" />
@@ -257,7 +283,7 @@ export default function Home() {
             <div className="flex justify-between items-center mb-2">
                 <div className="flex gap-4">
                     <button onClick={handleLike} className="focus:outline-none">
-                        <Heart className={cn("h-7 w-7", isLiked ? 'text-red-500 fill-red-500' : 'text-foreground')} />
+                        <Heart className={cn("h-7 w-7", isLiked ? 'text-red-500 fill-current' : 'text-card-foreground')} />
                     </button>
                     <MessageCircle className="h-7 w-7" />
                     <Send className="h-7 w-7" />
@@ -270,17 +296,17 @@ export default function Home() {
                 {postContent}
             </p>
             {comments.length > 0 && (
-                <div className="mt-2 text-sm text-gray-500">
+                <div className="mt-2 text-sm text-muted-foreground">
                     Ver todos os {comments.length} comentários
                 </div>
             )}
-            <p className="text-gray-400 text-xs mt-2 uppercase">{timestamp}</p>
+            <p className="text-muted-foreground text-xs mt-2 uppercase">{timestamp}</p>
         </CardContent>
     </Card>
   );
 
   const renderTwitterPreview = () => (
-    <Card className="w-full max-w-xl shadow-md transition-all duration-300 hover:shadow-xl font-sans bg-white dark:bg-black text-black dark:text-white">
+    <Card className="w-full max-w-xl shadow-md transition-all duration-300 hover:shadow-xl font-sans bg-card text-card-foreground">
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
           <Avatar className="h-12 w-12">
@@ -291,20 +317,20 @@ export default function Home() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1">
                 <p className="font-bold">{profileName}</p>
-                {isVerified && <BadgeCheck className="h-5 w-5 text-blue-500 fill-blue-500" />}
-                <p className="text-gray-500">{username}</p>
-                <span className="text-gray-500">·</span>
-                <p className="text-gray-500">{timestamp}</p>
+                {isVerified && <BadgeCheck className="h-5 w-5 text-blue-500 fill-current" />}
+                <p className="text-muted-foreground">{username}</p>
+                <span className="text-muted-foreground">·</span>
+                <p className="text-muted-foreground">{timestamp}</p>
               </div>
-              <MoreHorizontal className="h-5 w-5 text-gray-500" />
+              <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
             </div>
             <p className="whitespace-pre-wrap mt-1">{postContent}</p>
             {postImage && (
-              <div className="mt-3 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+              <div className="mt-3 rounded-2xl border border-border overflow-hidden">
                 <Image src={postImage} alt="Post image" width={500} height={300} className="w-full h-auto object-cover" data-ai-hint="social media post" />
               </div>
             )}
-            <div className="flex justify-around mt-3 text-gray-500">
+            <div className="flex justify-around mt-3 text-muted-foreground">
               <Button variant="ghost" className="flex items-center gap-2 hover:text-blue-500">
                 <MessageCircle className="h-5 w-5" /> {comments.length}
               </Button>
@@ -325,7 +351,7 @@ export default function Home() {
   );
 
   const renderThreadsPreview = () => (
-    <Card className="w-full max-w-xl shadow-md transition-all duration-300 hover:shadow-xl font-sans bg-white dark:bg-black text-black dark:text-white">
+    <Card className="w-full max-w-xl shadow-md transition-all duration-300 hover:shadow-xl font-sans bg-card text-card-foreground">
         <CardContent className="p-4">
             <div className="flex flex-col">
                 <div className="flex justify-between items-start">
@@ -336,10 +362,10 @@ export default function Home() {
                         </Avatar>
                         <div className="flex items-center gap-1">
                             <p className="font-bold">{profileName}</p>
-                            {isVerified && <BadgeCheck className="h-5 w-5 text-blue-500 fill-blue-500" />}
+                            {isVerified && <BadgeCheck className="h-5 w-5 text-blue-500 fill-current" />}
                         </div>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-500">
+                    <div className="flex items-center gap-2 text-muted-foreground">
                         <span>{timestamp}</span>
                         <MoreHorizontal className="h-5 w-5" />
                     </div>
@@ -348,17 +374,17 @@ export default function Home() {
                 <div className="ml-[60px] -mt-5">
                     <p className="whitespace-pre-wrap mt-1">{postContent}</p>
                     {postImage && (
-                        <div className="mt-3 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+                        <div className="mt-3 rounded-2xl border border-border overflow-hidden">
                            <Image src={postImage} alt="Post image" width={500} height={300} className="w-full h-auto object-cover" data-ai-hint="social media post"/>
                         </div>
                     )}
-                    <div className="flex gap-4 mt-3 text-gray-500">
-                        <button onClick={handleLike} className="focus:outline-none"><Heart className={cn("h-6 w-6", isLiked ? 'text-red-500 fill-red-500' : 'text-black dark:text-white')} /></button>
+                    <div className="flex gap-4 mt-3 text-muted-foreground">
+                        <button onClick={handleLike} className="focus:outline-none"><Heart className={cn("h-6 w-6", isLiked ? 'text-red-500 fill-current' : 'text-card-foreground')} /></button>
                         <MessageCircle className="h-6 w-6" />
                         <Repeat className="h-6 w-6" />
                         <Send className="h-6 w-6" />
                     </div>
-                     <div className="flex items-center gap-2 text-sm text-gray-500 mt-2">
+                     <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
                         <span>{comments.length} respostas</span>
                         <Dot />
                         <span>{likes.toLocaleString()} curtidas</span>
@@ -370,8 +396,8 @@ export default function Home() {
   );
 
   const renderBlueSkyPreview = () => (
-    <Card className="w-full max-w-xl shadow-md transition-all duration-300 hover:shadow-xl font-sans bg-white dark:bg-white text-black">
-      <CardContent className="p-4 border border-gray-200 rounded-lg">
+    <Card className="w-full max-w-xl shadow-md transition-all duration-300 hover:shadow-xl font-sans bg-card text-card-foreground">
+      <CardContent className="p-4 border border-border rounded-lg">
         <div className="flex items-start gap-3">
           <Avatar className="h-12 w-12">
             <AvatarImage src={profilePic} alt={profileName} data-ai-hint="profile avatar" />
@@ -381,20 +407,20 @@ export default function Home() {
              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 flex-wrap">
                   <p className="font-bold">{profileName}</p>
-                   {isVerified && <BadgeCheck className="h-5 w-5 text-blue-500 fill-blue-500" />}
-                  <p className="text-gray-500">{username}</p>
-                  <span className="text-gray-500">·</span>
-                  <p className="text-gray-500">{timestamp}</p>
+                   {isVerified && <BadgeCheck className="h-5 w-5 text-blue-500 fill-current" />}
+                  <p className="text-muted-foreground">{username}</p>
+                  <span className="text-muted-foreground">·</span>
+                  <p className="text-muted-foreground">{timestamp}</p>
                 </div>
-                <MoreHorizontal className="h-5 w-5 text-gray-500" />
+                <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
             </div>
             <p className="whitespace-pre-wrap mt-1">{postContent}</p>
             {postImage && (
-              <div className="mt-3 rounded-lg border border-gray-200 overflow-hidden">
+              <div className="mt-3 rounded-lg border border-border overflow-hidden">
                  <Image src={postImage} alt="Post image" width={500} height={300} className="w-full h-auto object-cover" data-ai-hint="social media post"/>
               </div>
             )}
-            <div className="flex justify-between mt-3 text-gray-500 max-w-xs">
+            <div className="flex justify-between mt-3 text-muted-foreground max-w-xs">
               <Button variant="ghost" className="flex items-center gap-1 hover:text-blue-500 px-2">
                 <MessageCircle className="h-4 w-4" /> {comments.length}
               </Button>
@@ -423,20 +449,32 @@ export default function Home() {
   }
 
   return (
-    <div className="w-full min-h-full bg-background transition-colors duration-300">
+    <div className="w-full min-h-screen bg-background text-foreground transition-colors duration-300">
       <div className="container mx-auto p-4 sm:p-6 md:p-8">
-        <header className="mb-8 text-center">
-          <div className="inline-flex items-center gap-2">
-            <div className="bg-primary p-2 rounded-lg">
-                <MessageSquare className="h-8 w-8 text-primary-foreground" />
+        <header className="mb-8 relative">
+            <div className='text-center'>
+              <div className="inline-flex items-center gap-2">
+                <div className="bg-primary p-2 rounded-lg">
+                    <MessageSquare className="h-8 w-8 text-primary-foreground" />
+                </div>
+                <h1 className="text-4xl md:text-5xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-primary">
+                  FakePost
+                </h1>
+              </div>
+              <p className="text-muted-foreground mt-2 text-lg">
+                Crie e personalize seu post de rede social falso perfeito.
+              </p>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-primary">
-              Fakebook
-            </h1>
-          </div>
-          <p className="text-muted-foreground mt-2 text-lg">
-            Crie e personalize seu post de rede social falso perfeito.
-          </p>
+             <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleTheme}
+                className="absolute top-0 right-0 rounded-full"
+                aria-label="Toggle theme"
+              >
+                <Sun className="h-6 w-6 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-6 w-6 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              </Button>
         </header>
 
         <main className="grid md:grid-cols-5 gap-8">
@@ -486,6 +524,20 @@ export default function Home() {
             </div>
           </div>
         </main>
+        
+        <footer className="text-center mt-12 py-4 border-t border-border">
+          <p className="text-sm text-muted-foreground">
+            Desenvolvido por{' '}
+            <a
+              href="https://www.instagram.com/djjadsonreis"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-foreground hover:text-primary transition-colors"
+            >
+              Jadson Reis
+            </a>
+          </p>
+        </footer>
       </div>
     </div>
   );

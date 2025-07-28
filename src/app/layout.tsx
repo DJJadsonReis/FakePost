@@ -10,7 +10,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Fakebook - Gerador de Posts Falsos para Redes Sociais',
+  title: 'FakePost - Gerador de Posts Falsos para Redes Sociais',
   description: 'Crie posts falsos realistas para redes sociais com comentários gerados por IA.',
 };
 
