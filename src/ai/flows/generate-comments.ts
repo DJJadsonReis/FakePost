@@ -31,22 +31,22 @@ const generateCommentsPrompt = ai.definePrompt({
   name: 'generateCommentsPrompt',
   input: {schema: GenerateRealisticCommentsInputSchema},
   output: {schema: GenerateRealisticCommentsOutputSchema},
-  prompt: `You are an expert social media engagement simulator.
+  prompt: `Você é um especialista em simulação de engajamento em redes sociais.
 
-  Generate realistic and varied comments for the following social media post:
+  Gere comentários realistas e variados para o seguinte post de rede social. Os comentários devem estar em português:
 
-  Post Content: {{{postContent}}}
+  Conteúdo do Post: {{{postContent}}}
 
-  Number of Comments to Generate: {{{numberOfComments}}}
+  Número de Comentários a Gerar: {{{numberOfComments}}}
 
   {{#if commenterProfiles}}
-  Consider these commenter profiles when generating comments:
+  Considere estes perfis de comentaristas ao gerar os comentários:
   {{#each commenterProfiles}}
   - {{{this}}}
   {{/each}}
   {{/if}}
 
-  Comments:
+  Comentários:
   `,
 });
 

@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'Fakebook - Fake Social Media Post Generator',
-  description: 'Create realistic fake social media posts with AI-generated comments.',
+  title: 'Fakebook - Gerador de Posts Falsos para Redes Sociais',
+  description: 'Crie posts falsos realistas para redes sociais com comentários gerados por IA.',
 };
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="pt-BR" className="h-full">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

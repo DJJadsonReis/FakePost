@@ -29,14 +29,16 @@ import {
   User,
   Clock,
   MessageSquare,
+  BadgeCheck,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { getAIGeneratedComments } from './actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { Switch } from '@/components/ui/switch';
 
 const fakeCommenters = [
-  { name: 'Jane Smith', pic: 'https://placehold.co/40x40.png' , hint: 'profile avatar'},
+  { name: 'Joana Silva', pic: 'https://placehold.co/40x40.png' , hint: 'profile avatar'},
   { name: 'Alex Johnson', pic: 'https://placehold.co/40x40.png' , hint: 'profile avatar'},
   { name: 'Maria Garcia', pic: 'https://placehold.co/40x40.png' , hint: 'profile avatar'},
   { name: 'Chen Wei', pic: 'https://placehold.co/40x40.png' , hint: 'profile avatar'},
@@ -48,14 +50,15 @@ export default function Home() {
   const { toast } = useToast();
 
   // Post State
-  const [profileName, setProfileName] = useState('Jane Doe');
+  const [profileName, setProfileName] = useState('Maria Silva');
   const [profilePic, setProfilePic] = useState('https://placehold.co/48x48.png');
   const [postContent, setPostContent] = useState(
-    "Just enjoying a beautiful day at the park! It's amazing how a little bit of sunshine can change your whole mood. ☀️ #blessed #naturelover #goodvibes"
+    "Aproveitando um lindo dia no parque! É incrível como um pouco de sol pode mudar todo o seu humor. ☀️ #abençoada #amantedanatureza #boasvibrações"
   );
   const [postImage, setPostImage] = useState('https://placehold.co/600x400.png');
-  const [timestamp, setTimestamp] = useState('2 hours ago');
+  const [timestamp, setTimestamp] = useState('2 horas atrás');
   const [comments, setComments] = useState<string[]>([]);
+  const [isVerified, setIsVerified] = useState(false);
   
   // Engagement State
   const [likes, setLikes] = useState(128);
@@ -68,14 +71,14 @@ export default function Home() {
       if (result.error) {
         toast({
           variant: 'destructive',
-          title: 'Error',
+          title: 'Erro',
           description: result.error,
         });
       } else if (result.comments) {
         setComments(result.comments);
         toast({
-          title: 'Success!',
-          description: 'New comments have been generated.',
+          title: 'Sucesso!',
+          description: 'Novos comentários foram gerados.',
         });
       }
     });
@@ -104,7 +107,7 @@ export default function Home() {
             </h1>
           </div>
           <p className="text-muted-foreground mt-2 text-lg">
-            Create and customize your perfect fake social media post.
+            Crie e personalize seu post de rede social falso perfeito.
           </p>
         </header>
 
@@ -113,30 +116,34 @@ export default function Home() {
           <div className="md:col-span-2">
             <Card className="sticky top-8 shadow-lg">
               <CardHeader>
-                <CardTitle>Post Editor</CardTitle>
+                <CardTitle>Editor de Post</CardTitle>
                 <CardDescription>
-                  Modify the details of your post below.
+                  Modifique os detalhes do seu post abaixo.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="profile-name" className="flex items-center gap-2"><User className="w-4 h-4" /> Profile Name</Label>
+                  <Label htmlFor="profile-name" className="flex items-center gap-2"><User className="w-4 h-4" /> Nome do Perfil</Label>
                   <Input id="profile-name" value={profileName} onChange={(e) => setProfileName(e.target.value)} />
                 </div>
+                 <div className="flex items-center space-x-2">
+                  <Switch id="verified-switch" checked={isVerified} onCheckedChange={setIsVerified} />
+                  <Label htmlFor="verified-switch" className="flex items-center gap-2"><BadgeCheck className="w-4 h-4" /> Verificado</Label>
+                </div>
                 <div className="space-y-2">
-                  <Label htmlFor="profile-pic" className="flex items-center gap-2"><User className="w-4 h-4" /> Profile Picture URL</Label>
+                  <Label htmlFor="profile-pic" className="flex items-center gap-2"><User className="w-4 h-4" /> URL da Foto de Perfil</Label>
                   <Input id="profile-pic" value={profilePic} onChange={(e) => setProfilePic(e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="post-content" className="flex items-center gap-2"><MessageCircle className="w-4 h-4" /> Post Content</Label>
+                  <Label htmlFor="post-content" className="flex items-center gap-2"><MessageCircle className="w-4 h-4" /> Conteúdo do Post</Label>
                   <Textarea id="post-content" value={postContent} onChange={(e) => setPostContent(e.target.value)} rows={5} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="post-image" className="flex items-center gap-2"><ImageIcon className="w-4 h-4" /> Post Image URL</Label>
+                  <Label htmlFor="post-image" className="flex items-center gap-2"><ImageIcon className="w-4 h-4" /> URL da Imagem do Post</Label>
                   <Input id="post-image" value={postImage} onChange={(e) => setPostImage(e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="timestamp" className="flex items-center gap-2"><Clock className="w-4 h-4" /> Timestamp</Label>
+                  <Label htmlFor="timestamp" className="flex items-center gap-2"><Clock className="w-4 h-4" /> Data e Hora</Label>
                   <Input id="timestamp" value={timestamp} onChange={(e) => setTimestamp(e.target.value)} />
                 </div>
               </CardContent>
@@ -145,9 +152,9 @@ export default function Home() {
                   {isPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Generating...
+                      Gerando...
                     </>
-                  ) : 'Generate AI Comments'}
+                  ) : 'Gerar Comentários com IA'}
                 </Button>
               </CardFooter>
             </Card>
@@ -163,7 +170,10 @@ export default function Home() {
                     <AvatarFallback>{profileName.substring(0, 2)}</AvatarFallback>
                   </Avatar>
                   <div className="grid gap-0.5">
-                    <p className="font-bold text-base">{profileName}</p>
+                    <div className="flex items-center gap-1">
+                      <p className="font-bold text-base">{profileName}</p>
+                      {isVerified && <BadgeCheck className="h-5 w-5 text-primary" />}
+                    </div>
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <span>{timestamp}</span>
                       <span>·</span>
@@ -188,22 +198,22 @@ export default function Home() {
                 )}
                 <CardFooter className="flex flex-col items-start p-2">
                   <div className="flex justify-between w-full text-sm text-muted-foreground py-1 px-2">
-                    <span>{likes.toLocaleString()} Likes</span>
+                    <span>{likes.toLocaleString()} Curtidas</span>
                     <div className="flex gap-4">
-                      <span>{comments.length} Comments</span>
-                      <span>{shares} Shares</span>
+                      <span>{comments.length} Comentários</span>
+                      <span>{shares} Compart.</span>
                     </div>
                   </div>
                   <Separator className="my-1" />
                   <div className="grid grid-cols-3 w-full gap-1">
                     <Button variant="ghost" className="text-muted-foreground font-semibold" onClick={handleLike}>
-                      <ThumbsUp className={cn("mr-2 h-5 w-5", isLiked && "text-primary fill-primary/20")} /> Like
+                      <ThumbsUp className={cn("mr-2 h-5 w-5", isLiked && "text-primary fill-primary/20")} /> Curtir
                     </Button>
                     <Button variant="ghost" className="text-muted-foreground font-semibold">
-                      <MessageCircle className="mr-2 h-5 w-5" /> Comment
+                      <MessageCircle className="mr-2 h-5 w-5" /> Comentar
                     </Button>
                     <Button variant="ghost" className="text-muted-foreground font-semibold">
-                      <Share2 className="mr-2 h-5 w-5" /> Share
+                      <Share2 className="mr-2 h-5 w-5" /> Compart.
                     </Button>
                   </div>
                   {comments.length > 0 && <Separator className="my-1" />}
