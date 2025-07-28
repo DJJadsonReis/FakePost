@@ -83,7 +83,7 @@ export default function Home() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [isVerified, setIsVerified] = useState(true);
   const [verifiedColor, setVerifiedColor] = useState('#1DA1F2');
-  const [platform, setPlatform] = useState<SocialPlatform>('facebook');
+  const [platform, setPlatform] = useState<SocialPlatform>('twitter');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [isDownloading, setIsDownloading] = useState(false);
 
