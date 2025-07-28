@@ -47,9 +47,10 @@ import {
   Save,
   FolderOpen,
   Users,
+  AudioLines,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedProfilePic, getAIGeneratedPostImage } from './actions';
+import { getAIGeneratedComments, getAIGeneratedPostContent, getAIGeneratedProfilePic, getAIGeneratedPostImage, getAIGeneratedPostAudio } from './actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
@@ -66,6 +67,7 @@ export default function Home() {
   const [isGenerating, setIsGenerating] = useState({
     postContent: false,
     postImage: false,
+    postAudio: false,
     profilePic: false,
     comments: false,
   });
@@ -86,6 +88,7 @@ export default function Home() {
   );
   const [postImage, setPostImage] = useState('https://placehold.co/600x400.png');
   const [postImagePrompt, setPostImagePrompt] = useState('um lindo dia no parque com sol');
+  const [postAudio, setPostAudio] = useState('');
   const [timestamp, setTimestamp] = useState('2h');
   const [comments, setComments] = useState<Comment[]>([]);
   const [numberOfComments, setNumberOfComments] = useState(5);
@@ -264,6 +267,30 @@ export default function Home() {
     });
   };
 
+  const handleGeneratePostAudio = () => {
+    setIsGenerating(prev => ({ ...prev, postAudio: true }));
+    startTransition(async () => {
+      try {
+        const result = await getAIGeneratedPostAudio(postContent);
+        if (result.error) {
+          toast({
+            variant: 'destructive',
+            title: 'Erro',
+            description: result.error,
+          });
+        } else if (result.audioDataUri) {
+          setPostAudio(result.audioDataUri);
+          toast({
+            title: 'Sucesso!',
+            description: 'O áudio do post foi gerado.',
+          });
+        }
+      } finally {
+        setIsGenerating(prev => ({ ...prev, postAudio: false }));
+      }
+    });
+  }
+
 
   const handleLike = () => {
     setIsLiked(!isLiked);
@@ -405,6 +432,20 @@ export default function Home() {
             </Button>
         </div>
       </div>
+       <div className="space-y-2">
+        <Label className="flex items-center gap-2"><AudioLines className="w-4 h-4" /> Áudio do Post (TTS)</Label>
+        <div className="flex items-center gap-2">
+          <Button onClick={handleGeneratePostAudio} disabled={isGenerating.postAudio} className="w-full" variant="outline">
+            {isGenerating.postAudio ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            Gerar Áudio com IA
+          </Button>
+           {postAudio && (
+            <Button variant="ghost" size="icon" onClick={() => setPostAudio('')} aria-label="Remover áudio">
+                <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      </div>
       <div className="space-y-2">
         <Label htmlFor="post-image" className="flex items-center gap-2"><ImageIcon className="w-4 h-4" /> URL da Imagem do Post</Label>
         <div className="flex items-center gap-2">
@@ -485,6 +526,16 @@ export default function Home() {
     </div>
   );
 
+  const PostAudioPlayer = () => (
+    postAudio && (
+      <div className="mt-3">
+        <audio controls src={postAudio} className="w-full h-10">
+          Your browser does not support the audio element.
+        </audio>
+      </div>
+    )
+  );
+
   const renderFacebookPreview = () => (
     <Card className="w-full max-w-xl font-sans transition-all duration-300 bg-card text-card-foreground">
       <CardHeader className="flex flex-row items-center gap-3 space-y-0 p-4">
@@ -507,6 +558,7 @@ export default function Home() {
       </CardHeader>
       <CardContent className="px-4 pb-2 text-sm">
         <p className="whitespace-pre-wrap">{postContent}</p>
+        <PostAudioPlayer />
       </CardContent>
       {postImage && (
         <CardContent className="p-0">
@@ -590,13 +642,14 @@ export default function Home() {
             </div>
             <p className="font-bold text-sm mb-2">{likes.toLocaleString()} curtidas</p>
             <div className="space-y-1 w-full">
-              <p className="whitespace-pre-wrap text-sm">
+              <div className="whitespace-pre-wrap text-sm">
                   <span className="font-bold">{username}</span>
                   {' '}
                   {postContent}
-              </p>
+              </div>
+              <PostAudioPlayer />
               {comments.length > 0 && (
-                  <button className="text-sm text-muted-foreground">
+                  <button className="text-sm text-muted-foreground mt-2">
                       Ver todos os {comments.length} comentários
                   </button>
               )}
@@ -625,7 +678,8 @@ export default function Home() {
               </div>
               <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
             </div>
-            <p className="whitespace-pre-wrap mt-2">{postContent}</p>
+            <div className="whitespace-pre-wrap mt-2">{postContent}</div>
+            <PostAudioPlayer />
             {postImage && (
               <div className="mt-3 rounded-2xl border border-border overflow-hidden">
                 <Image src={postImage} alt="Post image" width={500} height={300} className="w-full h-auto object-cover" data-ai-hint="social media post" />
@@ -684,7 +738,8 @@ export default function Home() {
                             <MoreHorizontal className="h-5 w-5" />
                         </div>
                     </div>
-                    <p className="whitespace-pre-wrap mt-1">{postContent}</p>
+                    <div className="whitespace-pre-wrap mt-1">{postContent}</div>
+                    <PostAudioPlayer />
                     {postImage && (
                         <div className="mt-3 rounded-2xl border border-border overflow-hidden">
                            <Image src={postImage} alt="Post image" width={500} height={300} className="w-full h-auto object-cover" data-ai-hint="social media post"/>
@@ -726,7 +781,8 @@ export default function Home() {
               </div>
               <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
           </div>
-          <p className="whitespace-pre-wrap mt-1">{postContent}</p>
+          <div className="whitespace-pre-wrap mt-1">{postContent}</div>
+          <PostAudioPlayer />
           {postImage && (
             <div className="mt-3 rounded-lg border border-border overflow-hidden">
                <Image src={postImage} alt="Post image" width={500} height={300} className="w-full h-auto object-cover" data-ai-hint="social media post"/>
@@ -771,6 +827,7 @@ export default function Home() {
         </CardHeader>
         <CardContent className="px-4 pb-2 text-sm">
             <p className="whitespace-pre-wrap">{postContent}</p>
+            <PostAudioPlayer />
         </CardContent>
         {postImage && (
             <CardContent className="p-0">
@@ -847,8 +904,14 @@ const renderTikTokPreview = () => (
             </div>
             <p className="whitespace-pre-wrap mt-2 text-sm">{postContent}</p>
              <div className="flex items-center gap-2 mt-2">
-                <Music className="h-4 w-4" />
-                <p className="text-sm font-medium truncate">som original - {profileName}</p>
+                { postAudio ? (
+                    <audio src={postAudio} controls className="w-full h-8 opacity-80" />
+                ) : (
+                    <>
+                        <Music className="h-4 w-4" />
+                        <p className="text-sm font-medium truncate">som original - {profileName}</p>
+                    </>
+                )}
             </div>
         </div>
     </div>

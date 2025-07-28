@@ -1,6 +1,7 @@
 'use server';
 
 import { GenerateRealisticCommentsOutput, generateRealisticComments } from '@/ai/flows/generate-comments';
+import { generatePostAudio } from '@/ai/flows/generate-post-audio';
 import { generatePostContent } from '@/ai/flows/generate-post-content';
 import { generatePostImage } from '@/ai/flows/generate-post-image';
 import { generateProfilePic } from '@/ai/flows/generate-profile-pic';
@@ -81,4 +82,20 @@ export async function getAIGeneratedPostImage(
         console.error('Error generating post image:', error);
         return { error: 'Ocorreu um erro inesperado ao gerar a imagem. Por favor, tente novamente mais tarde.' };
     }
+}
+
+export async function getAIGeneratedPostAudio(
+  text: string
+): Promise<{ audioDataUri?: string; error?: string }> {
+  if (!text) {
+    return { error: 'O texto para gerar o áudio não pode estar vazio.' };
+  }
+
+  try {
+    const result = await generatePostAudio({ text });
+    return { audioDataUri: result.audioDataUri };
+  } catch (error) {
+    console.error('Error generating post audio:', error);
+    return { error: 'Ocorreu um erro inesperado ao gerar o áudio. Por favor, tente novamente mais tarde.' };
+  }
 }
