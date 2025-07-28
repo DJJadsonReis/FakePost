@@ -174,7 +174,7 @@ export function PostEditor({
                 <Label htmlFor="post-image">URL da Imagem do Post</Label>
                 <div className="flex items-center gap-2">
                 <Input id="post-image" value={editorState.postImage} onChange={(e) => handleInputChange('postImage', e.target.value)} placeholder="Cole uma URL de imagem aqui"/>
-                <Button variant="ghost" size="icon" onClick={() => updateEditorState({ postImage: '', postVideo: '' })} aria-label="Remover imagem" className="h-9 w-9">
+                <Button variant="ghost" size="icon" onClick={() => updateEditorState({ postImage: '', postVideo: '' })} aria-label="Remover Mídia" className="h-9 w-9">
                     <X className="h-4 w-4" />
                 </Button>
                 </div>
