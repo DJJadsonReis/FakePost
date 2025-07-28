@@ -522,32 +522,30 @@ export default function Home() {
         </Avatar>
         <div className="flex-1">
            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-1">
-                  <p className="font-bold text-base">{profileName}</p>
+              <div className="flex-1">
+                <div className="flex items-center gap-1.5">
+                  <p className="font-bold text-base hover:underline cursor-pointer">{profileName}</p>
                   <VerifiedBadge className="h-4 w-4" />
+                  <span className="text-muted-foreground text-base ml-1">{username}</span>
+                   <span className="text-muted-foreground text-base">· {timestamp}</span>
                 </div>
-                <p className="text-muted-foreground">{username}</p>
               </div>
-              <div className="flex items-center text-muted-foreground">
-                <span className="text-sm">{timestamp}</span>
-                <MoreHorizontal className="h-5 w-5 ml-2" />
-              </div>
+              <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
           </div>
-          <p className="whitespace-pre-wrap mt-2">{postContent}</p>
+          <p className="whitespace-pre-wrap mt-1">{postContent}</p>
           {postImage && (
             <div className="mt-3 rounded-lg border border-border overflow-hidden">
                <Image src={postImage} alt="Post image" width={500} height={300} className="w-full h-auto object-cover" data-ai-hint="social media post"/>
             </div>
           )}
-          <div className="flex justify-start gap-8 mt-4 text-muted-foreground">
-             <Button variant="ghost" size="sm" className="flex items-center gap-2 -ml-3">
+          <div className="flex justify-start gap-8 mt-3 text-muted-foreground">
+             <Button variant="ghost" size="sm" className="flex items-center gap-2 -ml-3 hover:text-blue-500">
               <MessageCircle className="h-5 w-5" /> {comments.length}
             </Button>
-            <Button variant="ghost" size="sm" className="flex items-center gap-2 -ml-3">
+            <Button variant="ghost" size="sm" className="flex items-center gap-2 -ml-3 hover:text-green-500">
               <Repeat className="h-5 w-5" /> {reposts}
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleLike} className="flex items-center gap-2 -ml-3">
+            <Button variant="ghost" size="sm" onClick={handleLike} className="flex items-center gap-2 -ml-3 hover:text-red-500">
               <Heart className={cn("h-5 w-5", isLiked && 'fill-red-500 text-red-500')} /> {likes}
             </Button>
           </div>
