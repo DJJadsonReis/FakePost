@@ -248,6 +248,7 @@ export default function Home() {
             <Globe className="h-3 w-3" />
           </div>
         </div>
+        <MoreHorizontal className="ml-auto h-5 w-5 text-muted-foreground" />
       </CardHeader>
       <CardContent className="px-4 pb-2 text-sm">
         <p className="whitespace-pre-wrap">{postContent}</p>
@@ -259,10 +260,16 @@ export default function Home() {
       )}
       <CardFooter className="flex flex-col items-start p-2">
         <div className="flex justify-between w-full text-xs text-muted-foreground py-1 px-2">
-          <span>{likes.toLocaleString()} Curtidas</span>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center -space-x-1">
+              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-500 border-2 border-card"><ThumbsUp className="h-2.5 w-2.5 text-white" /></span>
+              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-red-500 border-2 border-card"><Heart className="h-2.5 w-2.5 text-white fill-white" /></span>
+            </div>
+            <span>{likes.toLocaleString()}</span>
+          </div>
           <div className="flex gap-4">
             <span>{comments.length} Comentários</span>
-            <span>{shares} Compartilhamentos</span>
+            <span>{shares.toLocaleString()} Compartilhamentos</span>
           </div>
         </div>
         <Separator className="my-1" />
