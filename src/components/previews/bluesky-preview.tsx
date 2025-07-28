@@ -34,10 +34,10 @@ export function BlueSkyPreview({
         <div className="flex-1">
            <div className="flex items-center justify-between">
               <div className="flex-1">
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 flex-wrap">
                   <p className="font-bold text-base hover:underline cursor-pointer">{profileName}</p>
                   <VerifiedBadge isVerified={isVerified} verifiedColor={verifiedColor} className="h-4 w-4" />
-                  <span className="text-muted-foreground text-base ml-1">{username}</span>
+                  <span className="text-muted-foreground text-base">{username}</span>
                    <span className="text-muted-foreground text-base">· {timestamp}</span>
                 </div>
               </div>

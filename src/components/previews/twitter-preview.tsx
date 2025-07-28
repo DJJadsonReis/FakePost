@@ -43,13 +43,13 @@ export function TwitterPreview({
             <AvatarFallback>{profileName.substring(0, 2)}</AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <div className="flex items-center justify-between">
-              <div>
+            <div className="flex items-start justify-between">
+              <div className="flex flex-col">
                 <div className="flex items-center gap-1">
                   <p className="font-bold">{profileName}</p>
                   <VerifiedBadge isVerified={isVerified} verifiedColor={verifiedColor} className="h-5 w-5" />
                 </div>
-                <p className="text-muted-foreground">{username}</p>
+                <p className="text-muted-foreground -mt-0.5">{username}</p>
               </div>
               <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
             </div>
