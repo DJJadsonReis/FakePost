@@ -1,31 +1,40 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ShieldAlert } from 'lucide-react';
 
 export function AdBlockDetector({ children }: { children: React.ReactNode }) {
   const [isAdBlockerDetected, setIsAdBlockerDetected] = useState(false);
+  const adBaitRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // This is the bait file. Ad blockers will prevent this from being fetched.
-    const baitFile = new Request('/ads.js', {
-      method: 'HEAD',
-      mode: 'no-cors',
-    });
+    // Create a bait element
+    const adBait = document.createElement('div');
+    adBait.className = 'ad-banner text-ad pub_300x250 pub_300x250m pub_728x90 text-ad banner_ad';
+    adBait.style.position = 'absolute';
+    adBait.style.left = '-9999px';
+    adBait.style.top = '-9999px';
+    adBait.style.height = '1px';
+    adBait.style.width = '1px';
 
-    // We assume an ad blocker is present initially.
-    // If the fetch succeeds, we know there isn't one.
-    // If it fails, the error is caught, and we know an ad blocker is active.
-    fetch(baitFile)
-        .then(response => {
-            // If the request succeeds, it means no ad blocker is active.
-            setIsAdBlockerDetected(false);
-        })
-        .catch(error => {
-            // This error indicates that the request was blocked
-            console.warn('Ad blocker detected.');
-            setIsAdBlockerDetected(true);
-        });
+    document.body.appendChild(adBait);
+    
+    // Check its properties after a short delay
+    const checkTimer = setTimeout(() => {
+      if (adBait.offsetHeight === 0) {
+        console.warn('Ad blocker detected.');
+        setIsAdBlockerDetected(true);
+      }
+      // Cleanup
+      document.body.removeChild(adBait);
+    }, 100);
+
+    return () => {
+      clearTimeout(checkTimer);
+      if (document.body.contains(adBait)) {
+        document.body.removeChild(adBait);
+      }
+    };
   }, []);
 
 
