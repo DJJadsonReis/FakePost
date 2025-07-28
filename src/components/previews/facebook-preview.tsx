@@ -21,7 +21,7 @@ import { cn } from '@/lib/utils';
 import type { PreviewProps } from './preview-props';
 import { VerifiedBadge } from './verified-badge';
 import { CommentComponent } from './comment-component';
-import { PostAudioPlayer } from './post-audio-player';
+import { PostAudioPlayer } from '../post-audio-player';
 
 export function FacebookPreview({
   profileName,

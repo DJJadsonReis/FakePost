@@ -20,7 +20,7 @@ import {
 import { cn } from '@/lib/utils';
 import type { PreviewProps } from './preview-props';
 import { VerifiedBadge } from './verified-badge';
-import { PostAudioPlayer } from './post-audio-player';
+import { PostAudioPlayer } from '../post-audio-player';
 
 export function LinkedInPreview({
   profileName,
