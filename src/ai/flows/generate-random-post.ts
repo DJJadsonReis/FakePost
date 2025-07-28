@@ -23,6 +23,12 @@ const topics = [
     'a beleza do pôr do sol na praia'
 ];
 
+const GenerateRandomPostInputSchema = z.object({
+    topic: z.string().describe("The random topic for the social media post."),
+});
+export type GenerateRandomPostInput = z.infer<typeof GenerateRandomPostInputSchema>;
+
+
 const GenerateRandomPostOutputSchema = z.object({
     profileName: z.string().describe("The full name for a fictional social media user."),
     username: z.string().describe("The username (starting with @) for the fictional user."),
@@ -38,12 +44,13 @@ export async function generateRandomPost(): Promise<GenerateRandomPostOutput> {
 
 const generateRandomPostPrompt = ai.definePrompt({
   name: 'generateRandomPostPrompt',
+  input: {schema: GenerateRandomPostInputSchema},
   output: {schema: GenerateRandomPostOutputSchema},
   prompt: `Você é um especialista em marketing de redes sociais e criação de personas.
 
     Sua tarefa é gerar os detalhes textuais para um post de rede social completamente novo e aleatório com base em um tópico sorteado.
 
-    O tópico para hoje é: "${topics[Math.floor(Math.random() * topics.length)]}"
+    O tópico para hoje é: "{{{topic}}}"
 
     Por favor, gere o seguinte, em português:
     1.  Um nome completo realista para um usuário fictício.
@@ -60,7 +67,8 @@ const generateRandomPostFlow = ai.defineFlow(
     outputSchema: GenerateRandomPostOutputSchema,
   },
   async () => {
-    const {output} = await generateRandomPostPrompt();
+    const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+    const {output} = await generateRandomPostPrompt({ topic: randomTopic });
     return output!;
   }
 );
